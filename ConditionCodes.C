@@ -54,15 +54,7 @@ bool ConditionCodes::getConditionCode(int32_t ccNum, bool & error)
 	//Don't use "magic" numbers.
 	if (ccNum == OF || ccNum == SF || ccNum == ZF) {
 		error = false;
-		if (ccNum == OF) {
-			return Tools::getBits(codes, OF, OF);
-		}
-		else if (ccNum == SF) {
-			return Tools::getBits(codes, SF, SF);
-		}
-		else {
-			return Tools::getBits(codes, ZF, ZF);
-		}
+		return Tools::getBits(codes, ccNum, ccNum);
 	}
 	else {
 		error = true;
@@ -92,34 +84,11 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
 		error = false;
 		if (value == 1)
 		{
-			if (ccNum == OF)
-			{
-				codes = Tools::setBits(codes, OF, OF);
-			}
-			else if (ccNum == SF)
-			{
-				codes = Tools::setBits(codes, SF, SF);
-			}
-			else
-			{
-				codes = Tools::setBits(codes, ZF, ZF);
-			}
-
+			codes = Tools::setBits(codes, ccNum, ccNum);
 		}
 		else
 		{	
-			if (ccNum == OF)
-			{
-				codes = Tools::clearBits(codes, OF, OF);
-			}
-			else if (ccNum == SF)
-			{
-				codes = Tools::clearBits(codes, SF, SF);
-			}
-			else
-			{
-				codes = Tools::clearBits(codes, ZF, ZF);
-			}
+			codes = Tools::clearBits(codes, ccNum, ccNum);
 		}
 
 	}
