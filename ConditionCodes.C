@@ -50,24 +50,24 @@ ConditionCodes * ConditionCodes::getInstance()
  */
 bool ConditionCodes::getConditionCode(int32_t ccNum, bool & error)
 {
-   //Use your getBits in Tools.C.
-   //Don't use "magic" numbers.
-   if (ccNum != OF || ccNum != SF || ccNum != ZF) {
-   	error = true;
-	return false;
-   }
-   else {
-   	error = false;
-	if (ccNum == OF) {
-		return Tools::getBits(codes, OF, OF);
-	}
-	else if (ccNum == SF) {
-		return Tools::getBits(codes, SF, SF);
+	//Use your getBits in Tools.C.
+	//Don't use "magic" numbers.
+	if (ccNum == OF || ccNum == SF || ccNum == ZF) {
+		error = false;
+		if (ccNum == OF) {
+			return Tools::getBits(codes, OF, OF);
+		}
+		else if (ccNum == SF) {
+			return Tools::getBits(codes, SF, SF);
+		}
+		else {
+			return Tools::getBits(codes, ZF, ZF);
+		}
 	}
 	else {
-		return Tools::getBits(codes, ZF, ZF);
+		error = true;
+		return false;
 	}
-   }
 }
 
 /*
@@ -83,37 +83,50 @@ bool ConditionCodes::getConditionCode(int32_t ccNum, bool & error)
  *         false otherwise
  */
 void ConditionCodes::setConditionCode(bool value, int32_t ccNum, 
-                                      bool & error)
+		bool & error)
 {
-   //Use your setBits and clearBits in Tools.C. 
-   //Don't use "magic" numbers in your code.
-   if (ccNum != OF || ccNum != SF || ccNum != ZF) {
-   	error = true;
-   }
-   else if (value == 1) {
-   	error = false;
-	if (ccNum == OF) {
-		codes = Tools::setBits(codes, OF, OF);
+	//Use your setBits and clearBits in Tools.C. 
+	//Don't use "magic" numbers in your code.
+	if (ccNum == OF || ccNum == SF || ccNum == ZF)
+	{
+		error = false;
+		if (value == 1)
+		{
+			if (ccNum == OF)
+			{
+				codes = Tools::setBits(codes, OF, OF);
+			}
+			else if (ccNum == SF)
+			{
+				codes = Tools::setBits(codes, SF, SF);
+			}
+			else
+			{
+				codes = Tools::setBits(codes, ZF, ZF);
+			}
+
+		}
+		else
+		{	
+			if (ccNum == OF)
+			{
+				codes = Tools::clearBits(codes, OF, OF);
+			}
+			else if (ccNum == SF)
+			{
+				codes = Tools::clearBits(codes, SF, SF);
+			}
+			else
+			{
+				codes = Tools::clearBits(codes, ZF, ZF);
+			}
+		}
+
 	}
-	else if (ccNum == SF) {
-		codes = Tools::setBits(codes, SF, SF);
+	else
+	{
+		error = true;
 	}
-	else {
-		codes = Tools::setBits(codes, ZF, ZF);
-	}
-   }
-   else {
-   	error = false;
-	if (ccNum == OF) {
-		codes = Tools::clearBits(codes, OF, OF);
-	}
-	else if (ccNum == SF) {
-		codes = Tools::clearBits(codes, SF, SF);
-	}
-	else {
-		codes = Tools::clearBits(codes, ZF, ZF);
-	}
-   }
 }
 
 /*
@@ -122,11 +135,11 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
  */
 void ConditionCodes::dump()
 {
-   int32_t zf = Tools::getBits(codes, ZF, ZF);
-   int32_t sf = Tools::getBits(codes, SF, SF);
-   int32_t of = Tools::getBits(codes, OF, OF);
-   std::cout << std::endl;
-   std::cout << "ZF: " << std::hex << std::setw(1) << zf << " ";
-   std::cout << "SF: " << std::hex << std::setw(1) << sf << " ";
-   std::cout << "OF: " << std::hex << std::setw(1) << of << std::endl;
+	int32_t zf = Tools::getBits(codes, ZF, ZF);
+	int32_t sf = Tools::getBits(codes, SF, SF);
+	int32_t of = Tools::getBits(codes, OF, OF);
+	std::cout << std::endl;
+	std::cout << "ZF: " << std::hex << std::setw(1) << zf << " ";
+	std::cout << "SF: " << std::hex << std::setw(1) << sf << " ";
+	std::cout << "OF: " << std::hex << std::setw(1) << of << std::endl;
 }

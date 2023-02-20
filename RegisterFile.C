@@ -15,7 +15,7 @@ RegisterFile * RegisterFile::regInstance = NULL;
  */
 RegisterFile::RegisterFile()
 {
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < REGSIZE; i++)
 	{
 		reg[i] = 0;
 	}
@@ -52,7 +52,7 @@ RegisterFile * RegisterFile::getInstance()
 */
 uint64_t RegisterFile::readRegister(int32_t regNumber, bool & error)
 {
-   if (regNumber > -1 && regNumber < 15)
+   if (regNumber > -1 && regNumber < REGSIZE)
    {
       error = false;
       return reg[regNumber];
@@ -76,7 +76,7 @@ uint64_t RegisterFile::readRegister(int32_t regNumber, bool & error)
 void RegisterFile::writeRegister(uint64_t value, int32_t regNumber, 
                                  bool & error)
 { 
-   if (regNumber > -1 && regNumber < 15)
+   if (regNumber > -1 && regNumber < REGSIZE)
    {
       error = false;
       reg[regNumber] = value;
