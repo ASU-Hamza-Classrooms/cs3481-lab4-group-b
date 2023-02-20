@@ -8,6 +8,16 @@ RegisterFileTester.o ConditionCodes.o ConditionCodesTester.o
 
 lab4: $(OBJ)
 
+ConditionCodes.o: ConditionCodes.h Tools.h
+
+Memory.o: Memory.h Tools.h
+
+MemoryTester.o: Memory.h MemoryTester.h
+
+RegisterFile.o: RegisterFile.h Tools.h
+
+RegisterFileTester.o: RegisterFile.h RegisterFileTester.h
+
 clean:
 	rm $(OBJ) lab4
 
