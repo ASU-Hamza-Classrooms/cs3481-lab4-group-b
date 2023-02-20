@@ -3,6 +3,8 @@
 #include "ConditionCodes.h"
 #include "Tools.h"
 
+// Aidan Cook and Christian Hart
+
 //cc_instance will be initialized to reference the single 
 //instance of ConditionCodes
 ConditionCodes * ConditionCodes::ccInstance = NULL;
@@ -13,7 +15,7 @@ ConditionCodes * ConditionCodes::ccInstance = NULL;
  */
 ConditionCodes::ConditionCodes()
 {
-
+	codes = 0;
 }
 
 /**
@@ -26,7 +28,13 @@ ConditionCodes::ConditionCodes()
  */
 ConditionCodes * ConditionCodes::getInstance()
 {
-   return NULL;
+	if (ccInstance == NULL) {
+		ccInstance = new ConditionCodes();
+		return ccInstance;
+	}
+	else {
+		return ccInstance;
+	}
 }
 
 /*
@@ -44,7 +52,22 @@ bool ConditionCodes::getConditionCode(int32_t ccNum, bool & error)
 {
    //Use your getBits in Tools.C.
    //Don't use "magic" numbers.
-   return false;
+   if (ccNum != OF || ccNum != SF || ccNum != ZF) {
+   	error = true;
+	return false;
+   }
+   else {
+   	error = false;
+	if (ccNum == OF) {
+		return Tools::getBits(codes, OF, OF);
+	}
+	else if (ccNum == SF) {
+		return Tools::getBits(codes, SF, SF);
+	}
+	else {
+		return Tools::getBits(codes, ZF, ZF);
+	}
+   }
 }
 
 /*
@@ -64,7 +87,33 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
 {
    //Use your setBits and clearBits in Tools.C. 
    //Don't use "magic" numbers in your code.
-   return;
+   if (ccNum != OF || ccNum != SF || ccNum != ZF) {
+   	error = true;
+   }
+   else if (value == 1) {
+   	error = false;
+	if (ccNum == OF) {
+		codes = Tools::setBits(codes, OF, OF);
+	}
+	else if (ccNum == SF) {
+		codes = Tools::setBits(codes, SF, SF);
+	}
+	else {
+		codes = Tools::setBits(codes, ZF, ZF);
+	}
+   }
+   else {
+   	error = false;
+	if (ccNum == OF) {
+		codes = Tools::clearBits(codes, OF, OF);
+	}
+	else if (ccNum == SF) {
+		codes = Tools::clearBits(codes, SF, SF);
+	}
+	else {
+		codes = Tools::clearBits(codes, ZF, ZF);
+	}
+   }
 }
 
 /*
