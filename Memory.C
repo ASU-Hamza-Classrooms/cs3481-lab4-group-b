@@ -3,7 +3,7 @@
 #include "Memory.h"
 #include "Tools.h"
 
-// Adian Cook and Christian Hart.
+// Aidan Cook and Christian Hart.
 
 //memInstance will be initialized to the single instance
 //of the Memory class
