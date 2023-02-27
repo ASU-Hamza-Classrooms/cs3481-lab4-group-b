@@ -113,11 +113,13 @@ void Loader::loadLine(std::string line)
    //Also, use the convert method for each byte of data.
    if (hasAddress(line) && hasData(line)) {
        int32_t adr = convert(line, ADDRBEGIN, ADDREND - ADDRBEGIN);
-       int32_t data = convert(line, DATABEGIN, 20);
-       for (int i = 0; ; i++) {
-           //int32_t temp = Tools::getByte(data, i);
-           //Memory::getInstance->putByte(temp, adr, false);
+       int32_t start = DATABEGIN;
+       bool memError = false;
+       for (int i = 0; i < 9; i++) {     
+           uint8_t data = convert(line, start, 2);
+           Memory::getInstance()->putByte(data, adr, memError);
 	   adr++;
+	   start += 2;
        }
    }
 }
