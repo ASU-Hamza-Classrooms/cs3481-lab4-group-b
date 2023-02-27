@@ -61,6 +61,7 @@ Loader::Loader(int argc, char * argv[])
  */
 bool Loader::hasAddress(std::string line)
 {
+    return line[0] == '0';
 }
 
 /*
@@ -78,6 +79,7 @@ bool Loader::hasAddress(std::string line)
  */
 bool Loader::hasData(std::string line)
 {
+    return line[DATABEGIN] != ' ';
 }
 
 /*
@@ -109,6 +111,15 @@ void Loader::loadLine(std::string line)
    //Use the convert method to convert the characters
    //that represent the address into a number.
    //Also, use the convert method for each byte of data.
+   if (hasAddress(line) && hasData(line)) {
+       int32_t adr = convert(line, ADDRBEGIN, ADDREND - ADDRBEGIN);
+       int32_t data = convert(line, DATABEGIN, 20);
+       for (int i = 0; ; i++) {
+           //int32_t temp = Tools::getByte(data, i);
+           //Memory::getInstance->putByte(temp, adr, false);
+	   adr++;
+       }
+   }
 }
 
 /*
@@ -127,6 +138,9 @@ void Loader::loadLine(std::string line)
 int32_t Loader::convert(std::string line, int32_t start, int32_t len)
 {
    //Hint: you need something to convert a string to an int such as strtol 
+   line = line.substr(start, len);
+   int32_t temp = std::stoul(line, NULL, 16);
+   return temp;
 }
 
 /*
@@ -252,7 +266,7 @@ bool Loader::badFile(std::string filename)
 {
    //Hint: use std::string length method and C strcmp (or std::string find
    //      or std::string at or ...)
-   char[] ending = ".yo";
+   std::string ending = ".yo";
    if (filename.find(ending) != -1)
    {
       if (filename.length() >= 4)
