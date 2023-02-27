@@ -140,8 +140,9 @@ void Loader::loadLine(std::string line)
 int32_t Loader::convert(std::string line, int32_t start, int32_t len)
 {
    //Hint: you need something to convert a string to an int such as strtol 
-   line = line.substr(start, len);
-   int32_t temp = std::stoul(line, NULL, 16);
+   std::string temp = line.std::string::substr(start, len);
+   int32_t tempNum = std::strtol(temp, NULL, 16);
+   printf("TEMP IS PRINTING: %d", tempNum);
    return temp;
 }
 
