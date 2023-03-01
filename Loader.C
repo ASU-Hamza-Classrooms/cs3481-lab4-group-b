@@ -117,14 +117,17 @@ void Loader::loadLine(std::string line)
    //Also, use the convert method for each byte of data.
    if (hasAddress(line) && hasData(line)) {
        int32_t adr = convert(line, ADDRBEGIN, (ADDREND - ADDRBEGIN) + 1);
+       lastAddress = adr;
        int32_t start = DATABEGIN;
        bool memError = false;
        for (char * i = &line[DATABEGIN]; *i != ' '; i += 2) {     
            uint8_t data = convert(line, start, 2);
            Memory::getInstance()->putByte(data, adr, memError);
 	   adr++;
+           //lastAddress = adr;
 	   start += 2;
        }
+       lastAddress = adr;
    }
 }
 
@@ -169,36 +172,59 @@ bool Loader::hasErrors(std::string line)
    //   column COMMENT. If not, return true
    //   Hint: use hasComment
    //
+   if (!hasComment(line)) {
+      return true;
+   }
    //2) check whether line has an address.  If it doesn't,
    //   return result of isSpaces (line must be all spaces up
    //   to the | character)
    //   Hint: use hasAddress and isSpaces
    //
+   if (!hasAddress(line)) {
+      return isSpaces(line, 0, COMMENT - 1);
+   }
    //3) return true if the address is invalid
    //   Hint: use errorAddress 
    //
+   if (errorAddr(line)) {
+      return true; 
+   }
    //4) check whether the line has data. If it doesn't
    //   return result of isSpaces (line must be all spaces from
    //   after the address up to the | character)
    //   Hint: use hasData and isSpaces
    //
+   if (!hasData(line)) {
+      return isSpaces(line, ADDREND + 2, COMMENT - 1);
+   }
    //5) if you get past 4), line has an address and data. Check to
    //   make sure the data is valid using errorData
    //   Hint: use errorData
    //
+   int32_t numDBytes = 0;
+   if (errorData(line, numDBytes)) {
+      return true;
+   }
    //6) if you get past 5), line has a valid address and valid data.
    //   Make sure that the address on this line is > the last address
    //   stored to (lastAddress is a private data member)
    //   Hint: use convert to convert address to a number and compare
    //   to lastAddress
    //
+   int32_t addr = convert(line, ADDRBEGIN, ADDREND + 1);
+   if (addr <= lastAddress) {
+      return true;
+   }
    //7) Make sure that the last address of the data to be stored
    //   by this line doesn't exceed the memory size
    //   Hint: use numDBytes as set by errorData, MEMSIZE in Memory.h,
    //         and addr returned by convert
+   //
+   if (addr + numDBytes >= MEMSIZE) {
+      return true;
+   }
 
    // if control reaches here, no errors found
-
    return false;
 }
 
