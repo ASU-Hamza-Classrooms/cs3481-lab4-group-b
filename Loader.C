@@ -198,6 +198,7 @@ bool Loader::hasErrors(std::string line)
    //         and addr returned by convert
 
    // if control reaches here, no errors found
+
    return false;
 }
 
@@ -220,7 +221,25 @@ bool Loader::hasErrors(std::string line)
  */
 bool Loader::errorData(std::string line, int32_t & numDBytes)
 {
+   int32_t DATAEND = 27;
+   int32_t pairCount = 0;
    //Hint: use isxdigit and isSpaces
+   for (int i = DATABEGIN; i <= DATAEND; i++)
+   {
+       if (!(isxdigit(line[i])))
+       {
+           if (isSpaces(line, i, (COMMENT - 1)))
+	   {
+	       if (pairCount % 2 == 0)
+	       {
+	           return false;
+	       }
+	   }
+       }
+       pairCount++;
+   }
+
+   return true;
 }
 
 /*
@@ -235,6 +254,15 @@ bool Loader::errorData(std::string line, int32_t & numDBytes)
 bool Loader::errorAddr(std::string line)
 {
    //Hint: use isxdigit
+   for (int i = ADDRBEGIN; i <= ADDREND; i++)
+   {
+       //if line at i is NOT a digit
+       if (!(isxdigit(line[i])))
+       {
+           return true;
+       }
+   }
+   return false;
 }
 
 /* 
@@ -251,6 +279,14 @@ bool Loader::errorAddr(std::string line)
  */
 bool Loader::isSpaces(std::string line, int32_t start, int32_t end)
 {
+    for (int i = start; i <= end; i++)
+    {
+        if (line[i] != ' ')
+	{
+	    return false;
+	}
+    }
+    return true;
 }
 
 /*
