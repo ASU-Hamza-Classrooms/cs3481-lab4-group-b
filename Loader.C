@@ -232,13 +232,13 @@ bool Loader::errorData(std::string line, int32_t & numDBytes)
 	   {
 	       if (pairCount % 2 == 0)
 	       {
+	           numDBytes = pairCount;
 	           return false;
 	       }
 	   }
        }
        pairCount++;
    }
-
    return true;
 }
 
