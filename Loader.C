@@ -93,6 +93,10 @@ bool Loader::hasData(std::string line)
  */
 bool Loader::hasComment(std::string line)
 {
+    if (line.length() >= COMMENT && line[COMMENT] == '|') {
+        return true;
+    }
+    return false;
 }
 
 /*
@@ -115,7 +119,7 @@ void Loader::loadLine(std::string line)
        int32_t adr = convert(line, ADDRBEGIN, ADDREND - ADDRBEGIN);
        int32_t start = DATABEGIN;
        bool memError = false;
-       for (int i = 0; i < 9; i++) {     
+       for (char * i = &line[DATABEGIN]; *i != ' '; i += 2) {     
            uint8_t data = convert(line, start, 2);
            Memory::getInstance()->putByte(data, adr, memError);
 	   adr++;
@@ -141,9 +145,11 @@ int32_t Loader::convert(std::string line, int32_t start, int32_t len)
 {
    //Hint: you need something to convert a string to an int such as strtol 
    std::string temp = line.std::string::substr(start, len);
-   int32_t tempNum = std::strtol(temp, NULL, 16);
-   printf("TEMP IS PRINTING: %d", tempNum);
-   return temp;
+   char * p = &temp[0];
+   int32_t tempNum = std::strtol(p, NULL, 16);
+   //printf("CHAR POINTER IS PRINTING: %d\n", *p);
+   //printf("TEMPNUM IS PRINTING: %d\n", tempNum);
+   return tempNum;
 }
 
 /*
