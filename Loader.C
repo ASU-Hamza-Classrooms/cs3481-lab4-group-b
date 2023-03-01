@@ -116,7 +116,7 @@ void Loader::loadLine(std::string line)
    //that represent the address into a number.
    //Also, use the convert method for each byte of data.
    if (hasAddress(line) && hasData(line)) {
-       int32_t adr = convert(line, ADDRBEGIN, ADDREND - ADDRBEGIN);
+       int32_t adr = convert(line, ADDRBEGIN, (ADDREND - ADDRBEGIN) + 1);
        int32_t start = DATABEGIN;
        bool memError = false;
        for (char * i = &line[DATABEGIN]; *i != ' '; i += 2) {     
