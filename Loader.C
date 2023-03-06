@@ -120,7 +120,8 @@ void Loader::loadLine(std::string line)
        //lastAddress = adr;
        int32_t start = DATABEGIN;
        bool memError = false;
-       // 
+       // Loop through line until a space is reached and convert 2 digits at a time
+       // to bytes. Then insert into memory
        for (char * i = &line[DATABEGIN]; *i != ' '; i += 2) {     
            uint8_t data = convert(line, start, 2);
            Memory::getInstance()->putByte(data, adr, memError);
@@ -148,7 +149,9 @@ void Loader::loadLine(std::string line)
 int32_t Loader::convert(std::string line, int32_t start, int32_t len)
 {
    //Hint: you need something to convert a string to an int such as strtol 
+   // Converts line to an int
    std::string temp = line.std::string::substr(start, len);
+   // Create a char pointer that points to temp
    char * p = &temp[0];
    int32_t tempNum = std::strtol(p, NULL, 16);
    //printf("CHAR POINTER IS PRINTING: %d\n", *p);
