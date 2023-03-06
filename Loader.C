@@ -93,7 +93,7 @@ bool Loader::hasData(std::string line)
  */
 bool Loader::hasComment(std::string line)
 {
-    if (line.length() >= COMMENT && line[COMMENT] == '|') {
+    if ((line.length() >= COMMENT) && (line[COMMENT] == '|')) {
         return true;
     }
     return false;
@@ -181,7 +181,7 @@ bool Loader::hasErrors(std::string line)
    //   Hint: use hasAddress and isSpaces
    //
    if (!hasAddress(line)) {
-      return isSpaces(line, 0, COMMENT - 1);
+      return !(isSpaces(line, 0, COMMENT - 1));
    }
    //3) return true if the address is invalid
    //   Hint: use errorAddress 
@@ -195,7 +195,7 @@ bool Loader::hasErrors(std::string line)
    //   Hint: use hasData and isSpaces
    //
    if (!hasData(line)) {
-      return isSpaces(line, ADDREND + 2, COMMENT - 1);
+      return !(isSpaces(line, ADDREND + 2, COMMENT - 1));
    }
    //5) if you get past 4), line has an address and data. Check to
    //   make sure the data is valid using errorData
@@ -211,18 +211,20 @@ bool Loader::hasErrors(std::string line)
    //   Hint: use convert to convert address to a number and compare
    //   to lastAddress
    //
+   //THIS IF BREAKS THE METHOD!!! REWRITE
    int32_t addr = convert(line, ADDRBEGIN, ADDREND + 1);
-   if (addr <= lastAddress) {
-      return true;
-   }
+   //if (addr <= lastAddress) {
+     // return true;
+   //}
    //7) Make sure that the last address of the data to be stored
    //   by this line doesn't exceed the memory size
    //   Hint: use numDBytes as set by errorData, MEMSIZE in Memory.h,
    //         and addr returned by convert
    //
-   if (addr + numDBytes >= MEMSIZE) {
-      return true;
-   }
+   //THIS IF BREAKS THE METHOD!!! REWRITE
+   //if (addr + numDBytes >= MEMSIZE) {
+     // return true;
+   //}
 
    // if control reaches here, no errors found
    return false;
@@ -280,6 +282,10 @@ bool Loader::errorData(std::string line, int32_t & numDBytes)
 bool Loader::errorAddr(std::string line)
 {
    //Hint: use isxdigit
+   if (line[1] != 'x')
+   {
+       return true;
+   }
    for (int i = ADDRBEGIN; i <= ADDREND; i++)
    {
        //if line at i is NOT a digit
@@ -287,6 +293,11 @@ bool Loader::errorAddr(std::string line)
        {
            return true;
        }
+
+   }
+   if (line[5] != ':')
+   {
+       return true;
    }
    return false;
 }
