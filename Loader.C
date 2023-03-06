@@ -117,17 +117,18 @@ void Loader::loadLine(std::string line)
    //Also, use the convert method for each byte of data.
    if (hasAddress(line) && hasData(line)) {
        int32_t adr = convert(line, ADDRBEGIN, (ADDREND - ADDRBEGIN) + 1);
-       lastAddress = adr;
+       //lastAddress = adr;
        int32_t start = DATABEGIN;
        bool memError = false;
+       // 
        for (char * i = &line[DATABEGIN]; *i != ' '; i += 2) {     
            uint8_t data = convert(line, start, 2);
            Memory::getInstance()->putByte(data, adr, memError);
 	   adr++;
-           //lastAddress = adr;
 	   start += 2;
        }
-       lastAddress = adr;
+       // adr == next available address so set lastAddress to adr - 1
+       lastAddress = adr - 1;
    }
 }
 
@@ -213,18 +214,22 @@ bool Loader::hasErrors(std::string line)
    //
    //THIS IF BREAKS THE METHOD!!! REWRITE
    int32_t addr = convert(line, ADDRBEGIN, ADDREND + 1);
-   //if (addr <= lastAddress) {
-     // return true;
-   //}
+   if (addr <= lastAddress) {
+      return true;
+   }
    //7) Make sure that the last address of the data to be stored
    //   by this line doesn't exceed the memory size
    //   Hint: use numDBytes as set by errorData, MEMSIZE in Memory.h,
    //         and addr returned by convert
    //
    //THIS IF BREAKS THE METHOD!!! REWRITE
-   //if (addr + numDBytes >= MEMSIZE) {
-     // return true;
-   //}
+   //printf("########################################################\n");
+   //printf("addr: %x\n", addr);
+   //printf("numDBytes: %d\n", numDBytes);
+   //printf("########################################################\n");
+   if (addr + numDBytes > MEMSIZE) {
+      return true;
+   }
 
    // if control reaches here, no errors found
    return false;
@@ -254,15 +259,25 @@ bool Loader::errorData(std::string line, int32_t & numDBytes)
    //Hint: use isxdigit and isSpaces
    for (int i = DATABEGIN; i <= DATAEND; i++)
    {
+       // if i is not a hex digit
        if (!(isxdigit(line[i])))
        {
+           // check to see if there are spaces from line[i] to COMMENT - 1
            if (isSpaces(line, i, (COMMENT - 1)))
 	   {
+	       numDBytes = pairCount / 2;
 	       if (pairCount % 2 == 0)
 	       {
-	           numDBytes = pairCount;
 	           return false;
 	       }
+	       else 
+	       {
+	           return true;
+	       }
+	   }
+	   else
+	   {
+               return true;
 	   }
        }
        pairCount++;
@@ -296,6 +311,10 @@ bool Loader::errorAddr(std::string line)
 
    }
    if (line[5] != ':')
+   {
+       return true;
+   }
+   if (line[6] != ' ')
    {
        return true;
    }
