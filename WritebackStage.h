@@ -2,7 +2,7 @@
 class WritebackStage: public Stage
 {
    public:
-      bool doClockLow();
-      void doClockHigh();
+      bool doClockLow(PipeReg ** pregs, Stage ** stages);
+      void doClockHigh(PipeReg ** pregs);
 
 };
