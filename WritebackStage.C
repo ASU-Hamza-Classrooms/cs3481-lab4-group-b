@@ -12,7 +12,7 @@
 
 bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
-
+    return true;
 }
 
 
