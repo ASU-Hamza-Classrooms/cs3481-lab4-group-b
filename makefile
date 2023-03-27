@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -g -c -Wall -std=c++11 -O0
-OBJ = yess.o Loader.o Memory.o Tools.o RegisterFile.o ConditionCodes.o PipeReg.o PipeRegField.o Simulate.o DecodeStage.o ExecuteStage.o FetchStage.o MemoryStage.o WritebackStage.o
+OBJ = yess.o Loader.o Memory.o Tools.o RegisterFile.o ConditionCodes.o PipeReg.o PipeRegField.o Simulate.o DecodeStage.o ExecuteStage.o FetchStage.o MemoryStage.o WritebackStage.o F.o D.o E.o M.o W.o
 
 .C.o:
 	$(CC) $(CFLAGS) $< -o $@
@@ -33,6 +33,15 @@ Memory.o: Memory.h Tools.h
 
 RegisterFile.o: RegisterFile.h Tools.h
 
+F.o: PipeRegField.h PipeReg.h F.h
+
+D.o: Instructions.h RegisterFile.h PipeReg.h PipeRegField.h D.h Status.h
+
+E.o: RegisterFile.h Instructions.h PipeReg.h PipeRegField.h E.h Status.h
+
+M.o: RegisterFile.h Instructions.h PipeReg.h PipeRegField.h M.h Status.h
+
+W.o: RegisterFile.h Instructions.h PipeReg.h PipeRegField.h W.h Status.h
 
 clean:
 	rm $(OBJ) yess
