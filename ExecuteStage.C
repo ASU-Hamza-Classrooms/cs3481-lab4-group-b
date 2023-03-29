@@ -27,7 +27,6 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 
 void ExecuteStage::doClockHigh(PipeReg ** pregs)
 {
-   E * ereg = (E *) pregs[EREG];
    M * mreg = (M *) pregs[MREG];
 
    

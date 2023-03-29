@@ -26,7 +26,6 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 
 void DecodeStage::doClockHigh(PipeReg ** pregs)
 {
-   D * dreg = (D *) pregs[DREG];
    E * ereg = (E *) pregs[EREG];
 
    ereg->getstat()->normal();
