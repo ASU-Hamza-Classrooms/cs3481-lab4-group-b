@@ -1,5 +1,6 @@
 #include <string>
 #include <cstdint>
+#include "Instructions.h"
 #include "RegisterFile.h"
 #include "PipeRegField.h"
 #include "PipeReg.h"
@@ -91,3 +92,62 @@ void FetchStage::setDInput(D * dreg, uint64_t stat, uint64_t icode,
    dreg->getvalP()->setInput(valP);
 }
      
+/* selectPC
+ * selects the proper PC.
+ *
+ * @param: fregs - pointer to the F register. 
+ * @param: mregs - pointer to the M register. 
+ * @param: wregs - pointer to the W register. 
+ */
+uint64_t FetchStage::selectPC(F * freg, M * mreg, W * wreg)
+{
+   // returns M_valA if there is a jump and M condition code is not set.
+   if (mreg->geticode()->getOutput() == IJXX && !mreg->getCnd()->getOutput())
+      return mreg->getvalA()->getOutput();
+   // returns W_valM if icode is IRET 
+   if (wreg->geticode()->getOutput() == IRET)
+      return wreg->getvalM()->getOutput();
+   // else returns predPC 
+   else
+      return freg->getpredPC()->getOutput();
+}
+
+/* needRegIds
+ *
+ * @param: f_icode - icode from the F register. 
+ */
+bool FetchStage::needRegIds(uint64_t f_icode)
+{
+   if (f_icode == IRRMOVQ || f_icode == IOPQ || f_icode == IPUSHQ || f_icode == IPOPQ
+      || f_icode == IIRMOVQ || f_icode == IRMMOVQ || f_icode == IMRMOVQ) {
+      return true;
+   }
+   return false;
+}
+
+/* needValC
+ *
+ * @param: f_icode - icode from the F register. 
+ */
+bool FetchStage::needValC(uint64_t f_icode)
+{
+   if (f_icode == IIRMOVQ || f_icode == IRMMOVQ || f_icode == IMRMOVQ
+      || f_icode == IJXX || f_icode == ICALL)  {
+      return true;
+   }
+   return false;
+}
+
+/* predictPC 
+ *
+ * @param: f_icode - icode from the F register. 
+ * @param: f_valC - valC from the F register. 
+ * @param: f_valP - valP from the F register. 
+ */
+bool FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP)
+{
+   if (f_icode == IJXX || f_icode == ICALL)
+      return f_valC;
+   return f_valP;
+}
+
