@@ -1,5 +1,6 @@
 #include <string>
 #include <cstdint>
+#include "Instructions.h"
 #include "RegisterFile.h"
 #include "PipeRegField.h"
 #include "PipeReg.h"
@@ -12,7 +13,11 @@
 
 bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
-    return true;
+    W * wreg = (W *) pregs[WREG];
+    if (wreg->geticode()->getOutput() == IHALT)
+        return true;
+    else
+        return false;
 }
 
 
