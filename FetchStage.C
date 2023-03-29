@@ -55,7 +55,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
       icode = Tools::getBits(instByte, 4, 7);
       if (icode == 1 || icode == 0)
       {
-         freg->getpredPC()->setInput(f_pc + 1);
+         //freg->getpredPC()->setInput(f_pc + 1);
          setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
          return false;
       }
@@ -182,6 +182,14 @@ uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_val
 
 uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
 {
-   
+   // increment by one no matter what
+   // if valC && Regs inc by 9
+   // if valC && !Regs inc by 8
+   // if !valC && Regs inc by 1
+   //
+   // if jump or call use valC
+   // if returning use value from memory (popping)
+   // if incrementing must look at lengths of instructions 
+   f_pc++;
 }
 
