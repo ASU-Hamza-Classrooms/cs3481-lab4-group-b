@@ -64,10 +64,10 @@ void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode,
    ereg->geticode()->setInput(icode);
    ereg->getifun()->setInput(ifun);
    ereg->getvalC()->setInput(valC);
-   ereg->getvalA()->setInput(0);
-   ereg->getvalB()->setInput(0);
-   ereg->getdstE()->setInput(RNONE);
-   ereg->getdstM()->setInput(RNONE);
-   ereg->getsrcA()->setInput(RNONE);
-   ereg->getsrcB()->setInput(RNONE);
+   ereg->getvalA()->setInput(valA);
+   ereg->getvalB()->setInput(valB);
+   ereg->getdstE()->setInput(dstE);
+   ereg->getdstM()->setInput(dstM);
+   ereg->getsrcA()->setInput(srcA);
+   ereg->getsrcB()->setInput(srcB);
 }
