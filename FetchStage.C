@@ -53,6 +53,12 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    {
       //getting the icode from instruction byte
       icode = Tools::getBits(instByte, 4, 7);
+      if (icode == 1 || icode == 0)
+      {
+         freg->getpredPC()->setInput(f_pc + 1);
+         setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
+         return false;
+      }
       //getting the ifun from the instruction byte
       ifun = Tools::getBits(instByte, 0, 3);
       //setting valP from PCIncrement
@@ -176,6 +182,6 @@ uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_val
 
 uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
 {
-
+   
 }
 
