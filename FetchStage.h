@@ -12,6 +12,7 @@ class FetchStage: public Stage
       uint64_t selectPC(F * freg, M * mreg, W * wreg);
       bool needRegIds(uint64_t f_icode);
       bool needValC(uint64_t f_icode);
-      bool predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP);
+      uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP);
+      uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC);
 
 };

@@ -12,6 +12,8 @@
 #include "FetchStage.h"
 #include "Status.h"
 #include "Debug.h"
+#include "Tools.h"
+#include "Memory.h"
 
 
 /*
@@ -27,6 +29,8 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    F * freg = (F *) pregs[FREG];
    D * dreg = (D *) pregs[DREG];
+   M * mreg = (M *) pregs[MREG];
+   W * wreg = (W *) pregs[WREG];
    uint64_t f_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
    uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
 
@@ -36,9 +40,28 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //rA, rB, and valC to be set.
    //The lab assignment describes what methods need to be
    //written.
-
+   //sets f_pc
+   f_pc = selectPC(freg, mreg, wreg);
+   bool mem_error = false;
+   //gets instruction byte from memory
+   Memory * mem_instance = Memory::getInstance();
+   uint8_t instByte = mem_instance->getByte(f_pc, mem_error);
+   //declares a tempPredPC to hold the values of predictPC
+   uint64_t tempPredPC = 1;
+   //as long as there is no mem_error
+   if (!mem_error)
+   {
+      //getting the icode from instruction byte
+      icode = Tools::getBits(instByte, 4, 7);
+      //getting the ifun from the instruction byte
+      ifun = Tools::getBits(instByte, 0, 3);
+      //setting valP from PCIncrement
+      valP = PCincrement(f_pc, needRegIds(icode), needValC(icode));
+      //getting the predicted PC and storing it in the temp variable
+      uint64_t tempPredPC = predictPC(icode, valC, valP);
+   }
    //The value passed to setInput below will need to be changed
-   freg->getpredPC()->setInput(f_pc + 1);
+   freg->getpredPC()->setInput(tempPredPC);
 
    //provide the input values for the D register
    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
@@ -144,10 +167,15 @@ bool FetchStage::needValC(uint64_t f_icode)
  * @param: f_valC - valC from the F register. 
  * @param: f_valP - valP from the F register. 
  */
-bool FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP)
+uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP)
 {
    if (f_icode == IJXX || f_icode == ICALL)
       return f_valC;
    return f_valP;
+}
+
+uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
+{
+
 }
 
