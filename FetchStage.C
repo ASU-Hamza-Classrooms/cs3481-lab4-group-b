@@ -47,25 +47,25 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    Memory * mem_instance = Memory::getInstance();
    uint8_t instByte = mem_instance->getByte(f_pc, mem_error);
    //declares a tempPredPC to hold the values of predictPC
-   uint64_t tempPredPC = 1;
+   //uint64_t tempPredPC = 1;
    //as long as there is no mem_error
-   if (!mem_error)
-   {
+   //if (!mem_error)
+   //{
       //getting the icode from instruction byte
       icode = Tools::getBits(instByte, 4, 7);
-      if (icode == 1 || icode == 0)
-      {
+      //if (icode == 1 || icode == 0)
+      //{
          //freg->getpredPC()->setInput(f_pc + 1);
-         setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
-         return false;
-      }
+      //   setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
+      //   return false;
+      //}
       //getting the ifun from the instruction byte
       ifun = Tools::getBits(instByte, 0, 3);
       //setting valP from PCIncrement
       valP = PCincrement(f_pc, needRegIds(icode), needValC(icode));
       //getting the predicted PC and storing it in the temp variable
       uint64_t tempPredPC = predictPC(icode, valC, valP);
-   }
+   //}
    //The value passed to setInput below will need to be changed
    freg->getpredPC()->setInput(tempPredPC);
 
@@ -191,5 +191,12 @@ uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
    // if returning use value from memory (popping)
    // if incrementing must look at lengths of instructions 
    f_pc++;
+   if (needRegIds && needValC) 
+   	f_pc += 9;
+   if (!needRegIds && needValC) 
+   	f_pc += 8;
+   if (needRegIds && !needValC) 
+   	f_pc += 1;
+   return f_pc;
 }
 
