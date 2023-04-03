@@ -27,18 +27,21 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    E * ereg = (E *) pregs[EREG];
 
    RegisterFile * regFile = RegisterFile::getInstance();
-
+   //setting icode, srcA, srcB
    uint64_t icode = dreg->geticode()->getOutput();
-   uint64_t srcA = getSrcA(icode, dreg->getrA()->getOutput());
-   uint64_t srcB = getSrcB(icode, dreg->getrB()->getOutput());
-
-   uint64_t dstE = getDstE(icode, dreg->getrB()->getOutput());
-   uint64_t dstM = getDstM(icode, dreg->getrA()->getOutput());
+   uint64_t srcA = getsrcA(icode, dreg->getrA()->getOutput());
+   uint64_t srcB = getsrcB(icode, dreg->getrB()->getOutput());
+   //setting dstE, dstM
+   uint64_t dstE = getdstE(icode, dreg->getrB()->getOutput());
+   uint64_t dstM = getdstM(icode, dreg->getrA()->getOutput());
 
 
    bool error = false;
    uint64_t d_rvalA = regFile->readRegister(srcA, error);
    uint64_t d_rvalB = regFile ->readRegister(srcB, error);
+
+   selFwdA(srcA, d_rvalA);
+   fwdB(srcB, d_rvalB);
 
    setEInput(ereg, dreg->getstat()->getOutput(), dreg->geticode()->getOutput(), dreg->getifun()->getOutput(), 
    	dreg->getvalC()->getOutput(), d_rvalA , d_rvalB, dstE, dstM, srcA, srcB);
@@ -102,7 +105,7 @@ void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode,
    ereg->getsrcB()->setInput(srcB);
 }
 
-uint64_t getSrcA(uint64_t D_icode, uint64_t D_rA)
+uint64_t getsrcA(uint64_t D_icode, uint64_t D_rA)
 {
    if (D_icode == IRRMOVQ || D_icode == IRMMOVQ || D_icode == IOPQ || D_icode == IPUSHQ)
       return D_rA;
@@ -112,7 +115,7 @@ uint64_t getSrcA(uint64_t D_icode, uint64_t D_rA)
       return RNONE;
 }
 
-uint64_t getSrcB(uint64_t D_icode, uint64_t D_rB)
+uint64_t getsrcB(uint64_t D_icode, uint64_t D_rB)
 {
    if (D_icode == IOPQ || D_icode == IRMMOVQ || D_icode == IMRMOVQ )
       return D_rB;
@@ -122,7 +125,7 @@ uint64_t getSrcB(uint64_t D_icode, uint64_t D_rB)
       return RNONE;
 }
 
-uint64_t getDstE(uint64_t D_icode, uint64_t D_rB)
+uint64_t getdstE(uint64_t D_icode, uint64_t D_rB)
 {
    if (D_icode == IRRMOVQ || D_icode == IIRMOVQ || D_icode == IOPQ )
       return D_rB;
@@ -132,7 +135,7 @@ uint64_t getDstE(uint64_t D_icode, uint64_t D_rB)
       return RNONE;
 }
 
-uint64_t getDstM (uint64_t D_icode, uint64_t D_rA)
+uint64_t getdstM(uint64_t D_icode, uint64_t D_rA)
 {
    if (D_icode == IMRMOVQ || D_icode == IPOPQ)
       return D_rA;
@@ -140,12 +143,12 @@ uint64_t getDstM (uint64_t D_icode, uint64_t D_rA)
       return RNONE;
 }
 
-uint64_t selFwdA (uint64_t d_srcA)
+uint64_t selFwdA(uint64_t d_srcA, uint64_t d_rvalA)
 {
    return d_srcA;
 }
 
-uint64_t fwdB (uint64_t d_srcB)
+uint64_t fwdB(uint64_t d_srcB, uint64_t d_rvalB)
 {
    return d_srcB;
 }

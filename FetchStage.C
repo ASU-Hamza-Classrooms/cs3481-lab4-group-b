@@ -64,12 +64,14 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 
    //
    if (needRegIds(icode)) {
-      getRegIds(mem_instance, instByte, rA, rB, f_pc);
+      instByte = mem_instance->getByte(f_pc + 1, mem_error);
+      getRegIds(instByte, rA, rB, f_pc);
    }
 
    //
    if (needValC(icode)) {
-      valC = buildValC(mem_instance, f_pc);
+      instByte = mem_instance->getLong(f_pc + 2, mem_error);
+      valC = buildValC(instByte, f_pc);
    }
 
    //provide the input values for the D register
@@ -214,12 +216,11 @@ uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
  * @param: mregs - pointer to the M register. 
  * @param: wregs - pointer to the W register. 
  */
-void FetchStage::getRegIds(Memory * mem_instance, uint8_t instByte, uint64_t &rA, uint64_t &rB, uint64_t f_pc)
+void FetchStage::getRegIds(uint8_t instByte, uint64_t &rA, uint64_t &rB, uint64_t f_pc)
 {
    //Memory * mem_instance = Memory::getInstance();
    bool mem_error = false;
    // !!! POSSIBLE ERROR IN THIS METHOD!!!
-   instByte = mem_instance->getByte(f_pc + 1, mem_error);
 
    rA = Tools::getBits(instByte, 0, 3);
    rB = Tools::getBits(instByte, 4, 7);
@@ -233,12 +234,11 @@ void FetchStage::getRegIds(Memory * mem_instance, uint8_t instByte, uint64_t &rA
  * @param: mregs - pointer to the M register. 
  * @param: wregs - pointer to the W register. 
  */
-uint64_t FetchStage::buildValC(Memory * mem_instance, uint64_t f_pc)
+uint64_t FetchStage::buildValC(uint64_t instByte, uint64_t f_pc)
 {
    //Memory * mem_instance = Memory::getInstance();
    bool mem_error = false;
    // !!! POSSIBLE ERROR IN THIS METHOD!!!
-   uint64_t instByte = mem_instance->getLong(f_pc + 2, mem_error);
 
    uint64_t valC = Tools::getBits(instByte, 0, 63);
 
