@@ -17,6 +17,7 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    M * mreg = (M *) pregs[MREG];
    W * wreg = (W *) pregs[WREG];
 
+   // sets input of W register
    setWInput(wreg, mreg->getstat()->getOutput(), mreg->geticode()->getOutput(), mreg->getvalE()->getOutput(),
    	0, mreg->getdstE()->getOutput(), mreg->getdstM()->getOutput());
    return false;
@@ -37,6 +38,10 @@ void MemoryStage::doClockHigh(PipeReg ** pregs)
 
 }
 
+/*
+ * Sets the inputs for the W register
+ *
+ */
 void MemoryStage::setWInput(W * wreg, uint64_t stat, uint64_t icode, uint64_t valE, uint64_t valM,
 	uint64_t dstE, uint64_t dstM)
 {

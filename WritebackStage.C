@@ -14,6 +14,7 @@
 bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
     W * wreg = (W *) pregs[WREG];
+    // if icode is halt instruction then return true
     if (wreg->geticode()->getOutput() == IHALT)
         return true;
     else
