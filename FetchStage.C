@@ -202,16 +202,33 @@ uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
  *
  * @param: f_icode - icode from the F register. 
  */
-void FetchStage::getRegIds()
+void FetchStage::getRegIds(F * freg, M * mreg, W * wreg)
 {
    //Memory * mem_instance = Memory::getInstance();
-   f_pc = selectPC(freg, mreg, wreg);
+   uint64_t f_pc = selectPC(freg, mreg, wreg);
    bool mem_error = false;
    // !!! POSSIBLE ERROR IN THIS METHOD!!!
    uint8_t instByte = mem_instance->getByte(f_pc + 1, mem_error);
 
-   rA = Tools::getBits(instByte, 0, 3);
-   rB = Tools::getBits(instByte, 4, 7);
+   uint64_t rA = Tools::getBits(instByte, 0, 3);
+   uint64_t rB = Tools::getBits(instByte, 4, 7);
+
+   // need to set D inputs here
+}
+
+/* buildValC 
+ *
+ * @param: f_icode - icode from the F register. 
+ */
+void FetchStage::buildValC(F * freg, M * mreg, W * wreg)
+{
+   //Memory * mem_instance = Memory::getInstance();
+   uint64_t f_pc = selectPC(freg, mreg, wreg);
+   bool mem_error = false;
+   // !!! POSSIBLE ERROR IN THIS METHOD!!!
+   uint8_t instByte = mem_instance->getByte(f_pc + 2, mem_error);
+
+   uint64_t valC = Tools::getBits(instByte, 0, 63);
 
    // need to set D inputs here
 }
