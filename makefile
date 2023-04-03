@@ -15,15 +15,15 @@ PipeRegField.o: PipeRegField.h
 
 Simulate.o: PipeRegField.h PipeReg.h F.h D.h E.h M.h W.h Stage.h ExecuteStage.h MemoryStage.h DecodeStage.h FetchStage.h WritebackStage.h Simulate.h Memory.h RegisterFile.h ConditionCodes.h
 
-DecodeStage.o: Stage.h
+DecodeStage.o: Stage.h RegisterFile.h Instructions.h PipeRegField.h PipeReg.h F.h D.h E.h DecodeStage.h Status.h Debug.h
 
-ExecuteStage.o: Stage.h
+ExecuteStage.o: Stage.h RegisterFile.h PipeRegField.h PipeReg.h D.h E.h M.h W.h ExecuteStage.h Status.h Debug.h
 
-FetchStage.o: Stage.h
+FetchStage.o: Stage.h Instructions.h RegisterFile.h PipeRegField.h PipeReg.h F.h D.h M.h W.h FetchStage.h Status.h Debug.h Tools.h Memory.h
 
-MemoryStage.o: Stage.h
+MemoryStage.o: Stage.h RegisterFile.h PipeRegField.h PipeReg.h E.h M.h W.h MemoryStage.h Status.h Debug.h
 
-WritebackStage.o: Stage.h
+WritebackStage.o: Stage.h Instructions.h RegisterFile.h PipeRegField.h PipeReg.h M.h W.h WritebackStage.h Status.h Debug.h
 
 Loader.o: Loader.h Memory.h
 
