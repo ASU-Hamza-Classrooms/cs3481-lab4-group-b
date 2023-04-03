@@ -11,6 +11,15 @@
 #include "Status.h"
 #include "Debug.h"
 
+/*
+ * doClockLow:
+ * Performs the Writeback stage combinational logic that is performed when
+ * the clock edge is low.
+ *
+ * @param: pregs - array of the pipeline register sets (F, D, E, M, W instances)
+ * @param: stages - array of stages (FetchStage, DecodeStage, ExecuteStage,
+ *         MemoryStage, WritebackStage instances)
+ */
 bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
     W * wreg = (W *) pregs[WREG];
