@@ -76,7 +76,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 
 /* doClockHigh
  * applies the appropriate control signal to the F
- * and D register intances
+ * and D register instances
  *
  * @param: pregs - array of the pipeline register (F, D, E, M, W instances)
  */
@@ -179,7 +179,12 @@ uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_val
       return f_valC;
    return f_valP;
 }
-
+/* PCIncrement
+ * 
+ * @param: f_pc - pc from the F register
+ * @param: needRegIds - bool signifying whether register IDs are needed
+ * @param: needValC - bool signifying whether valC is needed
+*/
 uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
 {
    // increment by one no matter what
