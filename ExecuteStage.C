@@ -26,8 +26,12 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 { 
    E * ereg = (E *) pregs[EREG];
    M * mreg = (M *) pregs[MREG];
-   setMInput(mreg, ereg->getstat()->getOutput(), ereg->geticode()->getOutput(), 0, 0, ereg->getvalA()->getOutput(),
-   	RNONE, ereg->getdstM()->getOutput());
+
+   // Sets e_valE to E_valC.  The value of e_valE is then stored in M_valE.
+   uint64_t e_valE = ereg->getvalC()->getOutput();
+
+   setMInput(mreg, ereg->getstat()->getOutput(), ereg->geticode()->getOutput(), 0, e_valE, 
+      ereg->getvalA()->getOutput(), RNONE, ereg->getdstM()->getOutput());
    return false;
 }
 

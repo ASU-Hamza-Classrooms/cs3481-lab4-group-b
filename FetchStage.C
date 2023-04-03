@@ -62,9 +62,15 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //The value passed to setInput below will need to be changed
    freg->getpredPC()->setInput(tempPredPC);
 
-   getRegIds(mem_instance, instByte, rA, rB, f_pc);
+   //
+   if (needRegIds(icode)) {
+      getRegIds(mem_instance, instByte, rA, rB, f_pc);
+   }
 
-   valC = buildValC(mem_instance, f_pc);
+   //
+   if (needValC(icode)) {
+      valC = buildValC(mem_instance, f_pc);
+   }
 
    //provide the input values for the D register
    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
