@@ -200,15 +200,16 @@ uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
 
 /* getRegIds 
  *
- * @param: f_icode - icode from the F register. 
+ * @param: fregs - pointer to the F register. 
+ * @param: mregs - pointer to the M register. 
+ * @param: wregs - pointer to the W register. 
  */
-void FetchStage::getRegIds(F * freg, M * mreg, W * wreg)
+void FetchStage::getRegIds(Memory * mem_instance)
 {
    //Memory * mem_instance = Memory::getInstance();
-   uint64_t f_pc = selectPC(freg, mreg, wreg);
    bool mem_error = false;
    // !!! POSSIBLE ERROR IN THIS METHOD!!!
-   uint8_t instByte = mem_instance->getByte(f_pc + 1, mem_error);
+   instByte = mem_instance->getByte(f_pc + 1, mem_error);
 
    uint64_t rA = Tools::getBits(instByte, 0, 3);
    uint64_t rB = Tools::getBits(instByte, 4, 7);
@@ -218,15 +219,16 @@ void FetchStage::getRegIds(F * freg, M * mreg, W * wreg)
 
 /* buildValC 
  *
- * @param: f_icode - icode from the F register. 
+ * @param: fregs - pointer to the F register. 
+ * @param: mregs - pointer to the M register. 
+ * @param: wregs - pointer to the W register. 
  */
-void FetchStage::buildValC(F * freg, M * mreg, W * wreg)
+void FetchStage::buildValC(Memory * mem_instance)
 {
    //Memory * mem_instance = Memory::getInstance();
-   uint64_t f_pc = selectPC(freg, mreg, wreg);
    bool mem_error = false;
    // !!! POSSIBLE ERROR IN THIS METHOD!!!
-   uint8_t instByte = mem_instance->getByte(f_pc + 2, mem_error);
+   uint64_t instByte = mem_instance->getLong(f_pc + 2, mem_error);
 
    uint64_t valC = Tools::getBits(instByte, 0, 63);
 
