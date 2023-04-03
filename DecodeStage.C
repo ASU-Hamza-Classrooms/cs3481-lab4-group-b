@@ -1,6 +1,7 @@
 #include <string>
 #include <cstdint>
 #include "RegisterFile.h"
+#include "Instructions.h"
 #include "PipeRegField.h"
 #include "PipeReg.h"
 #include "F.h"
@@ -25,8 +26,22 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    D * dreg = (D *) pregs[DREG];
    E * ereg = (E *) pregs[EREG];
 
+   RegisterFile * regFile = RegisterFile::getInstance();
+
+   uint64_t icode = dreg->geticode()->getOutput();
+   uint64_t srcA = getSrcA(icode, dreg->getrA()->getOutput());
+   uint64_t srcB = getSrcB(icode, dreg->getrB()->getOutput());
+
+   uint64_t dstE = getDstE(icode, dreg->getrB()->getOutput());
+   uint64_t dstM = getDstM(icode, dreg->getrA()->getOutput());
+
+
+   bool error = false;
+   uint64_t d_rvalA = regFile->readRegister(srcA, error);
+   uint64_t d_rvalB = regFile ->readRegister(srcB, error);
+
    setEInput(ereg, dreg->getstat()->getOutput(), dreg->geticode()->getOutput(), dreg->getifun()->getOutput(), 
-   	dreg->getvalC()->getOutput(), 0, 0, RNONE, RNONE, RNONE, RNONE);
+   	dreg->getvalC()->getOutput(), d_rvalA , d_rvalB, dstE, dstM, srcA, srcB);
    return false;
 }
 
@@ -85,4 +100,52 @@ void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode,
    ereg->getdstM()->setInput(dstM);
    ereg->getsrcA()->setInput(srcA);
    ereg->getsrcB()->setInput(srcB);
+}
+
+uint64_t getSrcA(uint64_t D_icode, uint64_t D_rA)
+{
+   if (D_icode == IRRMOVQ || D_icode == IRMMOVQ || D_icode == IOPQ || D_icode == IPUSHQ)
+      return D_rA;
+   if (D_icode == IPOPQ || D_icode == IRET)
+      return RSP;
+   else
+      return RNONE;
+}
+
+uint64_t getSrcB(uint64_t D_icode, uint64_t D_rB)
+{
+   if (D_icode == IOPQ || D_icode == IRMMOVQ || D_icode == IMRMOVQ )
+      return D_rB;
+   if (D_icode == IPUSHQ ||D_icode == IPOPQ || D_icode == ICALL || D_icode == IRET)
+      return RSP;
+   else
+      return RNONE;
+}
+
+uint64_t getDstE(uint64_t D_icode, uint64_t D_rB)
+{
+   if (D_icode == IRRMOVQ || D_icode == IIRMOVQ || D_icode == IOPQ )
+      return D_rB;
+   if (D_icode == IPUSHQ ||D_icode == IPOPQ || D_icode == ICALL || D_icode == IRET)
+      return RSP;
+   else
+      return RNONE;
+}
+
+uint64_t getDstM (uint64_t D_icode, uint64_t D_rA)
+{
+   if (D_icode == IMRMOVQ || D_icode == IPOPQ)
+      return D_rA;
+   else
+      return RNONE;
+}
+
+uint64_t selFwdA (uint64_t d_srcA)
+{
+   return d_srcA;
+}
+
+uint64_t fwdB (uint64_t d_srcB)
+{
+   return d_srcB;
 }
