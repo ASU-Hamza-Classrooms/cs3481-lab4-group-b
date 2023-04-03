@@ -172,6 +172,7 @@ uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_val
       return f_valC;
    return f_valP;
 }
+
 /* PCIncrement
  * 
  * @param: f_pc - pc from the F register
@@ -195,5 +196,23 @@ uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
    if (needRegIds && !needValC) 
    	f_pc += 1;
    return f_pc;
+}
+
+/* getRegIds 
+ *
+ * @param: f_icode - icode from the F register. 
+ */
+void FetchStage::getRegIds()
+{
+   //Memory * mem_instance = Memory::getInstance();
+   f_pc = selectPC(freg, mreg, wreg);
+   bool mem_error = false;
+   // !!! POSSIBLE ERROR IN THIS METHOD!!!
+   uint8_t instByte = mem_instance->getByte(f_pc + 1, mem_error);
+
+   rA = Tools::getBits(instByte, 0, 3);
+   rB = Tools::getBits(instByte, 4, 7);
+
+   // need to set D inputs here
 }
 
