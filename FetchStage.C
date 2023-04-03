@@ -43,29 +43,22 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //sets f_pc
    f_pc = selectPC(freg, mreg, wreg);
    bool mem_error = false;
+
    //gets instruction byte from memory
    Memory * mem_instance = Memory::getInstance();
    uint8_t instByte = mem_instance->getByte(f_pc, mem_error);
-   //declares a tempPredPC to hold the values of predictPC
-   //uint64_t tempPredPC = 1;
-   //as long as there is no mem_error
-   //if (!mem_error)
-   //{
-      //getting the icode from instruction byte
-      icode = Tools::getBits(instByte, 4, 7);
-      //if (icode == 1 || icode == 0)
-      //{
-         //freg->getpredPC()->setInput(f_pc + 1);
-      //   setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
-      //   return false;
-      //}
-      //getting the ifun from the instruction byte
-      ifun = Tools::getBits(instByte, 0, 3);
-      //setting valP from PCIncrement
-      valP = PCincrement(f_pc, needRegIds(icode), needValC(icode));
-      //getting the predicted PC and storing it in the temp variable
-      uint64_t tempPredPC = predictPC(icode, valC, valP);
-   //}
+
+   //getting the icode from instruction byte
+   icode = Tools::getBits(instByte, 4, 7);
+
+   //getting the ifun from the instruction byte
+   ifun = Tools::getBits(instByte, 0, 3);
+
+   //setting valP from PCIncrement
+   valP = PCincrement(f_pc, needRegIds(icode), needValC(icode));
+
+   //getting the predicted PC and storing it in the temp variable
+   uint64_t tempPredPC = predictPC(icode, valC, valP);
    //The value passed to setInput below will need to be changed
    freg->getpredPC()->setInput(tempPredPC);
 
@@ -187,19 +180,18 @@ uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_val
 */
 uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
 {
-   // increment by one no matter what
-   // if valC && Regs inc by 9
-   // if valC && !Regs inc by 8
-   // if !valC && Regs inc by 1
-   //
-   // if jump or call use valC
-   // if returning use value from memory (popping)
-   // if incrementing must look at lengths of instructions 
+   // always increment f_pc by one because every instruction has at least one byte.
    f_pc++;
+
+   // instruction is 10 bytes total.
    if (needRegIds && needValC) 
    	f_pc += 9;
+
+   // instruction is 9 bytes total.
    if (!needRegIds && needValC) 
    	f_pc += 8;
+
+   // instruction is 2 bytes total.
    if (needRegIds && !needValC) 
    	f_pc += 1;
    return f_pc;
