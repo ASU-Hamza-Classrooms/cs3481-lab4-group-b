@@ -11,7 +11,15 @@
 #include "Status.h"
 #include "Debug.h"
 
-
+/* doClockLow
+ * 
+ * Performs the Decode stage combinational logic that is performed when
+ * the clock edge is low.
+ *
+ * @params: pregs - pipe register array pointer
+ * @params: stages - array of stages (FetchStage, DecodeStage, ExecuteStage,
+ *         MemoryStage, WritebackStage instances)
+*/
 bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    D * dreg = (D *) pregs[DREG];
@@ -23,7 +31,12 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 }
 
 
-
+/* doClockHigh
+ * applies the appropriate control signal to the E
+ * instances
+ *
+ * @param: pregs - array of the pipeline register (F, D, E, M, W instances)
+ */
 void DecodeStage::doClockHigh(PipeReg ** pregs)
 {
    E * ereg = (E *) pregs[EREG];
@@ -42,17 +55,20 @@ void DecodeStage::doClockHigh(PipeReg ** pregs)
 
 
 /* setEInput
- * provides the input to potentially be stored in the D register
+ * provides the input to potentially be stored in the E register
  * during doClockHigh
  *
  * @param: ereg - pointer to the E register instance
- * @param: stat - value to be stored in the stat pipeline register within D
- * @param: icode - value to be stored in the icode pipeline register within D
- * @param: ifun - value to be stored in the ifun pipeline register within D
- * @param: rA - value to be stored in the rA pipeline register within D
- * @param: rB - value to be stored in the rB pipeline register within D
- * @param: valC - value to be stored in the valC pipeline register within D
- * @param: valP - value to be stored in the valP pipeline register within D
+ * @param: stat - value to be stored in the stat pipeline register within E
+ * @param: icode - value to be stored in the icode pipeline register within E
+ * @param: ifun - value to be stored in the ifun pipeline register within E
+ * @param: valC - value to be stored in the valC pipeline register within E
+ * @param: valA - value to be stored in the valA pipeline register within E
+ * @param: valB - value to be stored in the valB pipeline register within E
+ * @param: dstE - value to be stored in the dstE pipeline register within E
+ * @param: dstM - value to be stored in the dstM pipeline register within E
+ * @param: srcA - value to be stored in the srcA pipeline register within E
+ * @param: srcB - value to be stored in the srcB pipeline register within E
 */
 void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode, 
                            uint64_t ifun, uint64_t valC, uint64_t valA,
