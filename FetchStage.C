@@ -70,8 +70,14 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 
    //
    if (needValC(icode)) {
-      instByte = mem_instance->getLong(f_pc + 2, mem_error);
-      valC = buildValC(instByte, f_pc);
+      uint8_t byte[8];
+      for (int i = 2; i < 9; i++)
+      {
+         bool getError = false;
+         uint8_t numByte = mem_instance->getByte(f_pc + i, getError);
+         byte[i] = numByte;
+      }
+      valC = buildValC(byte);
    }
 
    //provide the input values for the D register
@@ -222,8 +228,8 @@ void FetchStage::getRegIds(uint8_t instByte, uint64_t &rA, uint64_t &rB, uint64_
    bool mem_error = false;
    // !!! POSSIBLE ERROR IN THIS METHOD!!!
 
-   rA = Tools::getBits(instByte, 0, 3);
-   rB = Tools::getBits(instByte, 4, 7);
+   rA = Tools::getBits(instByte, 4, 7);
+   rB = Tools::getBits(instByte, 0, 3);
 
    // need to set D inputs here
 }
@@ -234,13 +240,11 @@ void FetchStage::getRegIds(uint8_t instByte, uint64_t &rA, uint64_t &rB, uint64_
  * @param: mregs - pointer to the M register. 
  * @param: wregs - pointer to the W register. 
  */
-uint64_t FetchStage::buildValC(uint64_t instByte, uint64_t f_pc)
+uint64_t FetchStage::buildValC(uint8_t byte[])
 {
    //Memory * mem_instance = Memory::getInstance();
-   bool mem_error = false;
    // !!! POSSIBLE ERROR IN THIS METHOD!!!
-
-   uint64_t valC = Tools::getBits(instByte, 0, 63);
+   uint64_t valC = Tools::buildLong(byte);
 
    return valC;
 }

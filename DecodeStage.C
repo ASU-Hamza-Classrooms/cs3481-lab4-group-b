@@ -105,7 +105,7 @@ void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode,
    ereg->getsrcB()->setInput(srcB);
 }
 
-uint64_t getsrcA(uint64_t D_icode, uint64_t D_rA)
+uint64_t DecodeStage::getsrcA(uint64_t D_icode, uint64_t D_rA)
 {
    if (D_icode == IRRMOVQ || D_icode == IRMMOVQ || D_icode == IOPQ || D_icode == IPUSHQ)
       return D_rA;
@@ -115,7 +115,7 @@ uint64_t getsrcA(uint64_t D_icode, uint64_t D_rA)
       return RNONE;
 }
 
-uint64_t getsrcB(uint64_t D_icode, uint64_t D_rB)
+uint64_t DecodeStage::getsrcB(uint64_t D_icode, uint64_t D_rB)
 {
    if (D_icode == IOPQ || D_icode == IRMMOVQ || D_icode == IMRMOVQ )
       return D_rB;
@@ -125,7 +125,7 @@ uint64_t getsrcB(uint64_t D_icode, uint64_t D_rB)
       return RNONE;
 }
 
-uint64_t getdstE(uint64_t D_icode, uint64_t D_rB)
+uint64_t DecodeStage::getdstE(uint64_t D_icode, uint64_t D_rB)
 {
    if (D_icode == IRRMOVQ || D_icode == IIRMOVQ || D_icode == IOPQ )
       return D_rB;
@@ -135,7 +135,7 @@ uint64_t getdstE(uint64_t D_icode, uint64_t D_rB)
       return RNONE;
 }
 
-uint64_t getdstM(uint64_t D_icode, uint64_t D_rA)
+uint64_t DecodeStage::getdstM(uint64_t D_icode, uint64_t D_rA)
 {
    if (D_icode == IMRMOVQ || D_icode == IPOPQ)
       return D_rA;
@@ -143,12 +143,12 @@ uint64_t getdstM(uint64_t D_icode, uint64_t D_rA)
       return RNONE;
 }
 
-uint64_t selFwdA(uint64_t d_srcA, uint64_t d_rvalA)
+uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA)
 {
    return d_srcA;
 }
 
-uint64_t fwdB(uint64_t d_srcB, uint64_t d_rvalB)
+uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB)
 {
    return d_srcB;
 }
