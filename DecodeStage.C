@@ -145,10 +145,10 @@ uint64_t DecodeStage::getdstM(uint64_t D_icode, uint64_t D_rA)
 
 uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA)
 {
-   return d_srcA;
+   return d_rvalA;
 }
 
 uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB)
 {
-   return d_srcB;
+   return d_rvalB;
 }

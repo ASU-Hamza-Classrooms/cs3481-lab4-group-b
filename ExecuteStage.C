@@ -31,7 +31,7 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t e_valE = ereg->getvalC()->getOutput();
 
    setMInput(mreg, ereg->getstat()->getOutput(), ereg->geticode()->getOutput(), 0, e_valE, 
-      ereg->getvalA()->getOutput(), RNONE, ereg->getdstM()->getOutput());
+      ereg->getvalA()->getOutput(), ereg->getdstE()->getOutput(), ereg->getdstM()->getOutput());
    return false;
 }
 
