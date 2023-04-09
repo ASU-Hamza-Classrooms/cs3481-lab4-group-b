@@ -36,6 +36,8 @@ void WritebackStage::doClockHigh(PipeReg ** pregs)
     W * wreg = (W *) pregs[WREG];
     // Use the RegisterFile::writeRegister method to write the value of W_valE to R[W_dstE].
     RegisterFile * regFile = RegisterFile::getInstance();
-    bool error = false; // bool variable to keep track of any errors
+    // Temporary boolean variable for errors
+    bool error = false;
+    
     regFile->writeRegister(wreg->getvalE()->getOutput(), wreg->getdstE()->getOutput(), error);
 }

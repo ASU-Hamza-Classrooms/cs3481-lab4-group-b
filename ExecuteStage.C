@@ -30,6 +30,7 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    // Sets e_valE to E_valC.  The value of e_valE is then stored in M_valE.
    uint64_t e_valE = ereg->getvalC()->getOutput();
 
+   // Sets inputs for the M register
    setMInput(mreg, ereg->getstat()->getOutput(), ereg->geticode()->getOutput(), 0, e_valE, 
       ereg->getvalA()->getOutput(), ereg->getdstE()->getOutput(), ereg->getdstM()->getOutput());
    return false;

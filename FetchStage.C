@@ -59,16 +59,17 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 
    //getting the predicted PC and storing it in the temp variable
    uint64_t tempPredPC = predictPC(icode, valC, valP);
+
    //The value passed to setInput below will need to be changed
    freg->getpredPC()->setInput(tempPredPC);
 
-   //
+   // If the instruction needs register ids, this gets the register ids
    if (needRegIds(icode)) {
       instByte = mem_instance->getByte(f_pc + 1, mem_error);
       getRegIds(instByte, rA, rB, f_pc);
    }
 
-   //
+   // If the instruction needs valC, this builds valC
    if (needValC(icode)) {
       valC = buildValC(f_pc);
    }
@@ -211,42 +212,39 @@ uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
 
 /* getRegIds 
  *
- * @param: fregs - pointer to the F register. 
- * @param: mregs - pointer to the M register. 
- * @param: wregs - pointer to the W register. 
+ * @param: instByte - byte containing the register ids. 
+ * @param: &rA - pointer to the rA register. 
+ * @param: &rB - pointer to the rB register. 
+ * @param: f_pc - value of the PC.
  */
 void FetchStage::getRegIds(uint8_t instByte, uint64_t &rA, uint64_t &rB, uint64_t f_pc)
 {
-   //Memory * mem_instance = Memory::getInstance();
-   bool mem_error = false;
-   // !!! POSSIBLE ERROR IN THIS METHOD!!!
-
+   // Set the rA register by extracting the respective bits from the instruction
    rA = Tools::getBits(instByte, 4, 7);
+   // Set the rB register by extracting the respective bits from the instruction
    rB = Tools::getBits(instByte, 0, 3);
-
-   // need to set D inputs here
 }
 
 /* buildValC 
  *
- * @param: fregs - pointer to the F register. 
- * @param: mregs - pointer to the M register. 
- * @param: wregs - pointer to the W register. 
+ * @param: f_pc - value of the PC. 
  */
 uint64_t FetchStage::buildValC(uint64_t f_pc)
 {
-   //Memory * mem_instance = Memory::getInstance();
-   // !!! POSSIBLE ERROR IN THIS METHOD!!!
+   // Get the instance of Memroy(Singleton) and assign to mem_instance
    Memory * mem_instance = Memory::getInstance();
+   // Array to store the bytes of valC from the instruction
    uint8_t byte[8];
+
+   // Loops through valC and stores each byte in the array
    for (int i = 2; i < 10; i++)
    {
       bool getError = false;
       uint8_t numByte = mem_instance->getByte(f_pc + i, getError);
       byte[i - 2] = numByte;
    }
-   uint64_t valC = Tools::buildLong(byte);
 
-   return valC;
+   // Buils valC from the byte array
+   return Tools::buildLong(byte);
 }
 

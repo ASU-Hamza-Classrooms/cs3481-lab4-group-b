@@ -27,22 +27,27 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    E * ereg = (E *) pregs[EREG];
 
    RegisterFile * regFile = RegisterFile::getInstance();
+
    //setting icode, srcA, srcB
    uint64_t icode = dreg->geticode()->getOutput();
    uint64_t srcA = getsrcA(icode, dreg->getrA()->getOutput());
    uint64_t srcB = getsrcB(icode, dreg->getrB()->getOutput());
+   
    //setting dstE, dstM
    uint64_t dstE = getdstE(icode, dreg->getrB()->getOutput());
    uint64_t dstM = getdstM(icode, dreg->getrA()->getOutput());
 
-
+   // temporary boolean varible to call the following methods
    bool error = false;
+
+   // setting valA and valB
    uint64_t d_rvalA = regFile->readRegister(srcA, error);
    uint64_t d_rvalB = regFile ->readRegister(srcB, error);
 
    selFwdA(srcA, d_rvalA);
    fwdB(srcB, d_rvalB);
 
+   // Set inputs for the E register
    setEInput(ereg, dreg->getstat()->getOutput(), dreg->geticode()->getOutput(), dreg->getifun()->getOutput(), 
    	dreg->getvalC()->getOutput(), d_rvalA , d_rvalB, dstE, dstM, srcA, srcB);
    return false;
