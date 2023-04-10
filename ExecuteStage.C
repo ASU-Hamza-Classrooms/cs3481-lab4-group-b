@@ -15,6 +15,8 @@
 #include "ConditionCodes.h"
 #include "Tools.h"
 
+uint64_t e_dstE;
+uint64_t e_valE;
 
 /*
  * doClockLow:
@@ -30,12 +32,27 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    E * ereg = (E *) pregs[EREG];
    M * mreg = (M *) pregs[MREG];
 
-   // Sets e_valE to E_valC.  The value of e_valE is then stored in M_valE.
-   uint64_t e_valE = ereg->getvalC()->getOutput();
+   // Sets e_valE to the result of the ALU.  The value of e_valE is then stored in M_valE.
+   // Get the value returned from aluFun
+   uint64_t alu_fun = aluFun(ereg->getifun()->getOutput(), ereg->geticode()->getOutput());
+   // Gets the value of aluA
+   uint64_t alu_A = aluA(ereg->geticode()->getOutput(), ereg->getvalA()->getOutput(), 
+      ereg->getvalC()->getOutput());
+   // Gets the value of aluB
+   uint64_t alu_B = aluB(ereg->geticode()->getOutput(), ereg->getvalB()->getOutput());
+   // Sets the ALU
+   e_valE = ALU(alu_fun, alu_A, alu_B);
 
+   // Sets the Condition Codes (CC)
+   if (set_cc(ereg->geticode()->getOutput()))
+      CC(e_valE, alu_fun, alu_A, alu_B);
+   
+   // Set new dstE to send to M register
+   e_dstE = eDstE(ereg->geticode()->getOutput(), ereg->getdstE()->getOutput(), 0);
+   
    // Sets inputs for the M register
    setMInput(mreg, ereg->getstat()->getOutput(), ereg->geticode()->getOutput(), 0, e_valE, 
-      ereg->getvalA()->getOutput(), ereg->getdstE()->getOutput(), ereg->getdstM()->getOutput());
+      ereg->getvalA()->getOutput(), e_dstE, ereg->getdstM()->getOutput());
    return false;
 }
 
@@ -172,4 +189,12 @@ uint64_t ExecuteStage::ALU(uint64_t aluFun, uint64_t aluA, uint64_t aluB) {
    //
    if (aluFun == XORQ) 
       return aluA ^ aluB;
+}
+
+uint64_t ExecuteStage::get_edstE() {
+   return e_dstE;
+}
+
+uint64_t ExecuteStage::get_evalE() {
+   return e_valE;
 }
