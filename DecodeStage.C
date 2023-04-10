@@ -31,7 +31,6 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    M * mreg = (M *) pregs[MREG];
    W * wreg = (W *) pregs[WREG];
 
-   ExecuteStage * exe = (ExecuteStage *) stages[ESTAGE];
    RegisterFile * regFile = RegisterFile::getInstance();
 
    //setting icode, srcA, srcB
@@ -50,8 +49,8 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t d_rvalA = regFile->readRegister(srcA, error);
    uint64_t d_rvalB = regFile ->readRegister(srcB, error);
 
-   selFwdA(srcA, d_rvalA, exe, mreg, wreg);
-   fwdB(srcB, d_rvalB, exe, mreg, wreg);
+   selFwdA(srcA, d_rvalA, mreg, wreg, stages);
+   fwdB(srcB, d_rvalB, mreg, wreg, stages);
 
    // Set inputs for the E register
    setEInput(ereg, dreg->getstat()->getOutput(), dreg->geticode()->getOutput(), dreg->getifun()->getOutput(), 
@@ -154,10 +153,9 @@ uint64_t DecodeStage::getdstM(uint64_t D_icode, uint64_t D_rA)
       return RNONE;
 }
 
-uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, ExecuteStage * exe,
-   M * mreg, W * wreg)
+uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, M * mreg, W * wreg, Stage ** stages)
 {
-
+   ExecuteStage * exe = (ExecuteStage *) stages[ESTAGE];
    if (d_srcA == exe->get_edstE())
       return exe->get_evalE();
    if (d_srcA == mreg->getdstE()->getOutput())
@@ -168,10 +166,9 @@ uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, ExecuteStage * 
       return d_rvalA;
 }
 
-uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB, ExecuteStage * exe,
-   M * mreg, W * wreg)
+uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB, M * mreg, W * wreg, Stage ** stages)
 {
-   
+   ExecuteStage * exe = (ExecuteStage *) stages[ESTAGE];
    if (d_srcB == exe->get_edstE())
       return exe->get_evalE();
    if (d_srcB == mreg->getdstE()->getOutput())
