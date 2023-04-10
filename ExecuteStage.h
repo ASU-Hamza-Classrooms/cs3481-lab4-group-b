@@ -10,6 +10,6 @@ class ExecuteStage: public Stage
       uint64_t aluA(uint64_t E_icode, uint64_t valA, uint64_t valC);
       uint64_t aluB(uint64_t E_icode, uint64_t valB);
       uint64_t aluFun(uint64_t E_ifun, uint64_t E_icode);
-      uint64_t set_cc(uint64_t E_icode);
+      bool set_cc(uint64_t E_icode);
       uint64_t eDstE(uint64_t E_icode, uint64_t E_dstE, uint64_t e_Cnd);
 };

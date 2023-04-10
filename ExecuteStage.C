@@ -1,5 +1,6 @@
 #include <string>
 #include <cstdint>
+#include "Instructions.h"
 #include "RegisterFile.h"
 #include "PipeRegField.h"
 #include "PipeReg.h"
@@ -81,3 +82,50 @@ void ExecuteStage::setMInput(M * mreg, uint64_t stat, uint64_t icode, uint64_t C
    mreg->getdstE()->setInput(dstE);
    mreg->getdstM()->setInput(dstM);
 }
+
+uint64_t ExecuteStage::aluA(uint64_t E_icode, uint64_t E_valA, uint64_t E_valC)
+{
+   if (E_icode == IRRMOVQ || E_icode == IOPQ)
+      return E_valA;
+   if (E_icode == IIRMOVQ || E_icode == IRMMOVQ || E_icode == IMRMOVQ)
+      return E_valC;
+   if (E_icode == ICALL || E_icode == IPUSHQ)
+      return -8;
+   if (E_icode == IRET || E_icode == IPOPQ)
+      return 8;
+   else
+      return 0;
+}
+
+uint64_t ExecuteStage::aluB(uint64_t E_icode, uint64_t E_valB)
+{
+   if (E_icode == IRMMOVQ || E_icode == IMRMOVQ || E_icode == IOPQ || E_icode == ICALL ||
+      E_icode == IPUSHQ || E_icode == IRET || E_icode == IPOPQ)
+         return E_valB;
+   if (E_icode == IRRMOVQ || E_icode == IIRMOVQ)
+      return 0;
+   else
+      return 0;
+}
+
+uint64_t ExecuteStage::aluFun(uint64_t E_ifun, uint64_t E_icode)
+{
+   if (E_icode == IOPQ)
+      return E_ifun;
+   else
+      return ADDQ;
+}
+
+bool ExecuteStage::set_cc(uint64_t E_icode)
+{
+   return E_icode == IOPQ;
+}
+
+uint64_t ExecuteStage::eDstE(uint64_t E_icode, uint64_t E_dstE, uint64_t e_Cnd)
+{
+   if (E_icode == IRRMOVQ && !e_Cnd)
+      return RNONE;
+   else
+      return E_dstE;
+}
+
