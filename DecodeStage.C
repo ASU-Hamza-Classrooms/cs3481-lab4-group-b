@@ -49,12 +49,12 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t d_rvalA = regFile->readRegister(srcA, error);
    uint64_t d_rvalB = regFile ->readRegister(srcB, error);
 
-   selFwdA(srcA, d_rvalA, mreg, wreg, stages);
-   fwdB(srcB, d_rvalB, mreg, wreg, stages);
+   uint64_t fwd_A = selFwdA(srcA, d_rvalA, mreg, wreg, stages);
+   uint64_t fwd_B = fwdB(srcB, d_rvalB, mreg, wreg, stages);
 
    // Set inputs for the E register
    setEInput(ereg, dreg->getstat()->getOutput(), dreg->geticode()->getOutput(), dreg->getifun()->getOutput(), 
-   	dreg->getvalC()->getOutput(), d_rvalA , d_rvalB, dstE, dstM, srcA, srcB);
+   	dreg->getvalC()->getOutput(), fwd_A , fwd_B, dstE, dstM, srcA, srcB);
    return false;
 }
 
