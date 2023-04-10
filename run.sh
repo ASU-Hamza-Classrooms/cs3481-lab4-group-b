@@ -3,10 +3,12 @@
 rm -f -r Outputs
 mkdir Outputs
 chmod g+rwx Outputs
-dir="/u/classes/3481/Spring2022/lab7/Tests"
+dir="/u/css/classes/3481/Spring2022/lab8/Tests"
 tests=( error1 error2 error3 error4 error5 error6
-        error7 error8 error9 error10 error11 error12 
-        error13 error14 error15 error16 nop irmovq )
+        error7 error8 error9 error10 error11 error12 error13 error14 error15 error16 nop irmovq 
+        addq andq subq xorq addqfor1 addqfor2 addqfor3
+        addqfor4 addqfor5 addqfor6
+      )
 
 numTests=0
 numPasses=0
