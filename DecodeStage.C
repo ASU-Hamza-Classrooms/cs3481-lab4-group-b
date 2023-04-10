@@ -7,8 +7,11 @@
 #include "F.h"
 #include "D.h"
 #include "E.h"
+#include "M.h"
+#include "W.h"
 #include "Stage.h"
 #include "DecodeStage.h"
+#include "ExecuteStage.h"
 #include "Status.h"
 #include "Debug.h"
 
@@ -25,7 +28,10 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    D * dreg = (D *) pregs[DREG];
    E * ereg = (E *) pregs[EREG];
+   M * mreg = (M *) pregs[MREG];
+   W * wreg = (W *) pregs[WREG];
 
+   ExecuteStage * exe = (ExecuteStage *) stages[ESTAGE];
    RegisterFile * regFile = RegisterFile::getInstance();
 
    //setting icode, srcA, srcB
@@ -44,8 +50,8 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t d_rvalA = regFile->readRegister(srcA, error);
    uint64_t d_rvalB = regFile ->readRegister(srcB, error);
 
-   selFwdA(srcA, d_rvalA);
-   fwdB(srcB, d_rvalB);
+   selFwdA(srcA, d_rvalA, exe, mreg, wreg);
+   fwdB(srcB, d_rvalB, exe, mreg, wreg);
 
    // Set inputs for the E register
    setEInput(ereg, dreg->getstat()->getOutput(), dreg->geticode()->getOutput(), dreg->getifun()->getOutput(), 
@@ -148,12 +154,30 @@ uint64_t DecodeStage::getdstM(uint64_t D_icode, uint64_t D_rA)
       return RNONE;
 }
 
-uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA)
+uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, ExecuteStage * exe,
+   M * mreg, W * wreg)
 {
-   return d_rvalA;
+
+   if (d_srcA == exe->get_edstE())
+      return exe->get_evalE();
+   if (d_srcA == mreg->getdstE()->getOutput())
+      return mreg->getvalE()->getOutput();
+   if (d_srcA == wreg->getdstE()->getOutput())
+      return wreg->getvalE()->getOutput();
+   else
+      return d_rvalA;
 }
 
-uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB)
+uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB, ExecuteStage * exe,
+   M * mreg, W * wreg)
 {
-   return d_rvalB;
+   
+   if (d_srcB == exe->get_edstE())
+      return exe->get_evalE();
+   if (d_srcB == mreg->getdstE()->getOutput())
+      return mreg->getvalE()->getOutput();
+   if (d_srcB == wreg->getdstE()->getOutput())
+      return wreg->getvalE()->getOutput();
+   else
+      return d_rvalB;
 }
