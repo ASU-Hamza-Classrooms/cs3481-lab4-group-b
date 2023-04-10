@@ -150,16 +150,32 @@ uint64_t ExecuteStage::eDstE(uint64_t E_icode, uint64_t E_dstE, uint64_t e_Cnd)
 
 void ExecuteStage::CC(uint64_t alu, uint64_t aluFun, uint64_t aluA, uint64_t aluB) {
    ConditionCodes * cc = ConditionCodes::getInstance();
+
+   //printf("===============================\n");
+   //printf("ALU: %d ALU_FN: %d ALU_A: %d ALU_B: %d\n", alu,aluFun, aluA, aluB);
+   //printf("===============================\n");
+   
+
    bool error = false;
    // Sets SF or ZF flag
-   if (alu > 0)
-      cc->setConditionCode(0, SF, error);
-   if (alu < 0)
-      cc->setConditionCode(1, SF, error);
-   if (alu == 0)
+   if (alu == 0) {
       cc->setConditionCode(1, ZF, error);
+      cc->setConditionCode(0, SF, error);
+   }
+   else if (Tools::sign(alu) == 0) {
+      //printf("**********HERE GT***********\n");
+      cc->setConditionCode(0, SF, error);
+      cc->setConditionCode(0, ZF, error);
+   }
+   else if (Tools::sign(alu) == 1) {
+      //printf("**********HERE***********\n");
+      cc->setConditionCode(1, SF, error);
+      cc->setConditionCode(0, ZF, error);
+   }
 
    // Sets OF flag
+   cc->setConditionCode(0, OF, error);
+
    if (aluFun == ADDQ) {
       if (Tools::addOverflow(aluA, aluB))
          cc->setConditionCode(1, OF, error);
@@ -174,6 +190,13 @@ void ExecuteStage::CC(uint64_t alu, uint64_t aluFun, uint64_t aluA, uint64_t alu
       else 
          cc->setConditionCode(0, OF, error);
    }
+
+
+
+   //printf("===============================\n");
+   //printf("SF: %d   ZF: %d OF: %d\n", cc->getConditionCode(SF, error), cc->getConditionCode(ZF, error), cc->getConditionCode(OF, error));
+   //printf("===============================\n");
+
 }
 
 uint64_t ExecuteStage::ALU(uint64_t aluFun, uint64_t aluA, uint64_t aluB) {
