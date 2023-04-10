@@ -173,9 +173,10 @@ void ExecuteStage::CC(uint64_t alu, uint64_t aluFun, uint64_t aluA, uint64_t alu
       cc->setConditionCode(0, ZF, error);
    }
 
-   // Sets OF flag
+   // Sets OF flag to zero for general case
    cc->setConditionCode(0, OF, error);
 
+   //
    if (aluFun == ADDQ) {
       if (Tools::addOverflow(aluA, aluB))
          cc->setConditionCode(1, OF, error);
