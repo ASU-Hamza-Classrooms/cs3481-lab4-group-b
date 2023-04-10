@@ -12,6 +12,8 @@
 #include "ExecuteStage.h"
 #include "Status.h"
 #include "Debug.h"
+#include "ConditionCodes.h"
+#include "Tools.h"
 
 
 /*
@@ -129,3 +131,45 @@ uint64_t ExecuteStage::eDstE(uint64_t E_icode, uint64_t E_dstE, uint64_t e_Cnd)
       return E_dstE;
 }
 
+void ExecuteStage::CC(uint64_t alu, uint64_t aluFun, uint64_t aluA, uint64_t aluB) {
+   ConditionCodes * cc = ConditionCodes::getInstance();
+   bool error = false;
+   // Sets SF or ZF flag
+   if (alu > 0)
+      cc->setConditionCode(0, SF, error);
+   if (alu < 0)
+      cc->setConditionCode(1, SF, error);
+   if (alu == 0)
+      cc->setConditionCode(1, ZF, error);
+
+   // Sets OF flag
+   if (aluFun == ADDQ) {
+      if (Tools::addOverflow(aluA, aluB))
+         cc->setConditionCode(1, OF, error);
+      else 
+         cc->setConditionCode(0, OF, error);
+   }
+
+   //
+   if (aluFun == SUBQ) {
+      if (Tools::subOverflow(aluA, aluB))
+         cc->setConditionCode(1, OF, error);
+      else 
+         cc->setConditionCode(0, OF, error);
+   }
+}
+
+uint64_t ExecuteStage::ALU(uint64_t aluFun, uint64_t aluA, uint64_t aluB) {
+   //
+   if (aluFun == ADDQ)
+      return aluA + aluB;
+   //   
+   if (aluFun == SUBQ)
+      return aluB - aluA;
+   //   
+   if (aluFun == ANDQ)
+      return aluA & aluB;
+   //
+   if (aluFun == XORQ) 
+      return aluA ^ aluB;
+}
