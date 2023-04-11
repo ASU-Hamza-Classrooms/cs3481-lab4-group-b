@@ -114,7 +114,13 @@ void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode,
    ereg->getsrcA()->setInput(srcA);
    ereg->getsrcB()->setInput(srcB);
 }
-
+/* getsrcA
+ * determines srcA based on icode 
+ * 
+ * @param D_icode - icode from the DecodeStage register
+ * @param D_rA - register A from the DecodeStage register
+ * 
+*/
 uint64_t DecodeStage::getsrcA(uint64_t D_icode, uint64_t D_rA)
 {
    if (D_icode == IRRMOVQ || D_icode == IRMMOVQ || D_icode == IOPQ || D_icode == IPUSHQ)
@@ -125,6 +131,13 @@ uint64_t DecodeStage::getsrcA(uint64_t D_icode, uint64_t D_rA)
       return RNONE;
 }
 
+/* getsrcB
+ * determines srcA based on icode 
+ * 
+ * @param D_icode - icode from the DecodeStage register
+ * @param D_rB - register B from the DecodeStage register
+ * 
+*/
 uint64_t DecodeStage::getsrcB(uint64_t D_icode, uint64_t D_rB)
 {
    if (D_icode == IOPQ || D_icode == IRMMOVQ || D_icode == IMRMOVQ )
@@ -135,6 +148,13 @@ uint64_t DecodeStage::getsrcB(uint64_t D_icode, uint64_t D_rB)
       return RNONE;
 }
 
+/* getdstE
+ * determines dstE based on icode 
+ * 
+ * @param D_icode - icode from the DecodeStage register
+ * @param D_rB - register B from the DecodeStage register
+ * 
+*/
 uint64_t DecodeStage::getdstE(uint64_t D_icode, uint64_t D_rB)
 {
    if (D_icode == IRRMOVQ || D_icode == IIRMOVQ || D_icode == IOPQ )
@@ -145,6 +165,13 @@ uint64_t DecodeStage::getdstE(uint64_t D_icode, uint64_t D_rB)
       return RNONE;
 }
 
+/* getdstM
+ * determines dstM based on icode 
+ * 
+ * @param D_icode - icode from the DecodeStage register
+ * @param D_rA - register A from the DecodeStage register
+ * 
+*/
 uint64_t DecodeStage::getdstM(uint64_t D_icode, uint64_t D_rA)
 {
    if (D_icode == IMRMOVQ || D_icode == IPOPQ)
@@ -153,6 +180,18 @@ uint64_t DecodeStage::getdstM(uint64_t D_icode, uint64_t D_rA)
       return RNONE;
 }
 
+/* selFwdA
+ * gets values needed for instruction if they haven't made it
+ * through the pipeline yet
+ * 
+ * @param d_srcA - srcA from the DecodeStage
+ * @param d_rvalA - rvalA from the DecodeStage
+ * @param mreg - MemoryStage register
+ * @param wreg - WritebackStage register
+ * @param stages - array of Y86 stages
+ * 
+ * 
+*/
 uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, M * mreg, W * wreg, Stage ** stages)
 {
    ExecuteStage * exe = (ExecuteStage *) stages[ESTAGE];
@@ -166,6 +205,18 @@ uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, M * mreg, W * w
       return d_rvalA;
 }
 
+/* fwdB
+ * gets values needed for instruction if they haven't made it
+ * through the pipeline yet
+ * 
+ * @param d_srcB - srcB from the DecodeStage
+ * @param d_rvalB - rvalB from the DecodeStage
+ * @param mreg - MemoryStage register
+ * @param wreg - WritebackStage register
+ * @param stages - array of Y86 stages
+ * 
+ * 
+*/
 uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB, M * mreg, W * wreg, Stage ** stages)
 {
    ExecuteStage * exe = (ExecuteStage *) stages[ESTAGE];
