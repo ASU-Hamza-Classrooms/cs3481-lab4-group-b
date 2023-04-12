@@ -49,6 +49,7 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t d_rvalA = regFile->readRegister(srcA, error);
    uint64_t d_rvalB = regFile ->readRegister(srcB, error);
 
+   // uses d_rvalA and d_rvalB to assess forwarding
    uint64_t fwd_A = selFwdA(srcA, d_rvalA, mreg, wreg, stages);
    uint64_t fwd_B = fwdB(srcB, d_rvalB, mreg, wreg, stages);
 
