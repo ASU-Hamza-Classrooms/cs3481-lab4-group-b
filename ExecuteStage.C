@@ -105,6 +105,15 @@ void ExecuteStage::setMInput(M * mreg, uint64_t stat, uint64_t icode, uint64_t C
    mreg->getdstM()->setInput(dstM);
 }
 
+/* aluA
+ * determines the number used for the first operand in ALU
+ * 
+ * @param E_icode - icode from the ExecuteStage register
+ * @param E_valA - valA from the ExecuteStage register
+ * @param E_valC - valC from the ExecuteStage register
+ * 
+ * 
+*/
 uint64_t ExecuteStage::aluA(uint64_t E_icode, uint64_t E_valA, uint64_t E_valC)
 {
    if (E_icode == IRRMOVQ || E_icode == IOPQ)
@@ -119,6 +128,14 @@ uint64_t ExecuteStage::aluA(uint64_t E_icode, uint64_t E_valA, uint64_t E_valC)
       return 0;
 }
 
+/* aluB
+ * determines the number used for the second operand in ALU
+ * 
+ * @param E_icode - icode from the ExecuteStage register
+ * @param E_valB - valB from the ExecuteStage register
+ * 
+ * 
+*/
 uint64_t ExecuteStage::aluB(uint64_t E_icode, uint64_t E_valB)
 {
    if (E_icode == IRMMOVQ || E_icode == IMRMOVQ || E_icode == IOPQ || E_icode == ICALL ||
@@ -130,6 +147,13 @@ uint64_t ExecuteStage::aluB(uint64_t E_icode, uint64_t E_valB)
       return 0;
 }
 
+/* aluFun
+ * determines if the operation to be performed is an OPQ
+ * 
+ * @param E_ifun - ifun from the ExecuteStage register
+ * @param E_icode - icode from the ExecuteStage register
+ * 
+*/
 uint64_t ExecuteStage::aluFun(uint64_t E_ifun, uint64_t E_icode)
 {
    if (E_icode == IOPQ)
@@ -138,6 +162,12 @@ uint64_t ExecuteStage::aluFun(uint64_t E_ifun, uint64_t E_icode)
       return ADDQ;
 }
 
+/* set_cc
+ * determines if condition codes need to be set
+ *
+ * @param E_icode - icode from the ExecuteStage register
+ * 
+*/
 bool ExecuteStage::set_cc(uint64_t E_icode)
 {
    return E_icode == IOPQ;
