@@ -173,6 +173,16 @@ bool ExecuteStage::set_cc(uint64_t E_icode)
    return E_icode == IOPQ;
 }
 
+/*
+ * eDstE
+ * determines whether to use the dstE from the ExecutionStage Register
+ * or the dstE that is changed/calculated depending on a certain condition
+ * 
+ * @param E_icode - icode from the ExecuteStage register
+ * @patam E_dstE - dstE from the ExecuteStage register
+ * @param e_Cnd - condition from the execute stage
+ * 
+*/
 uint64_t ExecuteStage::eDstE(uint64_t E_icode, uint64_t E_dstE, uint64_t e_Cnd)
 {
    if (E_icode == IRRMOVQ && !e_Cnd)
@@ -181,15 +191,27 @@ uint64_t ExecuteStage::eDstE(uint64_t E_icode, uint64_t E_dstE, uint64_t e_Cnd)
       return E_dstE;
 }
 
+/*
+ * CC
+ * Sets the condition code flags depending on the result from the ALU, ALU Fun, ALU A, and ALU B
+ * 
+ * @param alu - result from the ALU method/hardware
+ * @patam aluFun - result from the aluFun method
+ * @param aluA - result from the aluA method
+ * @param aluB - result from the aluB method
+ * 
+*/
 void ExecuteStage::CC(uint64_t alu, uint64_t aluFun, uint64_t aluA, uint64_t aluB) {
+   // get the instance of the ConditionCodes (Singleton)
    ConditionCodes * cc = ConditionCodes::getInstance();
 
    //printf("===============================\n");
    //printf("ALU: %d ALU_FN: %d ALU_A: %d ALU_B: %d\n", alu,aluFun, aluA, aluB);
    //printf("===============================\n");
    
-
+   // error variable used for method calls
    bool error = false;
+
    // Sets SF or ZF flag
    if (alu == 0) {
       cc->setConditionCode(1, ZF, error);
@@ -209,7 +231,7 @@ void ExecuteStage::CC(uint64_t alu, uint64_t aluFun, uint64_t aluA, uint64_t alu
    // Sets OF flag to zero for general case
    cc->setConditionCode(0, OF, error);
 
-   //
+   // if opq is add
    if (aluFun == ADDQ) {
       if (Tools::addOverflow(aluA, aluB))
          cc->setConditionCode(1, OF, error);
@@ -217,7 +239,7 @@ void ExecuteStage::CC(uint64_t alu, uint64_t aluFun, uint64_t aluA, uint64_t alu
          cc->setConditionCode(0, OF, error);
    }
 
-   //
+   // if opq is subtract
    if (aluFun == SUBQ) {
       if (Tools::subOverflow(aluA, aluB))
          cc->setConditionCode(1, OF, error);
@@ -225,33 +247,48 @@ void ExecuteStage::CC(uint64_t alu, uint64_t aluFun, uint64_t aluA, uint64_t alu
          cc->setConditionCode(0, OF, error);
    }
 
-
-
    //printf("===============================\n");
    //printf("SF: %d   ZF: %d OF: %d\n", cc->getConditionCode(SF, error), cc->getConditionCode(ZF, error), cc->getConditionCode(OF, error));
    //printf("===============================\n");
-
 }
 
+/*
+ * ALU
+ *
+ * Calculates the result (using aluA and aluB) of a specified operation based on
+ * the result of the alu function (aluFun method)
+ * 
+ * @patam aluFun - result from the aluFun method
+ * @param aluA - result from the aluA method
+ * @param aluB - result from the aluB method
+ * 
+*/
 uint64_t ExecuteStage::ALU(uint64_t aluFun, uint64_t aluA, uint64_t aluB) {
-   //
+   // aluFun is the alu function calcuated based on the icode and ifun
    if (aluFun == ADDQ)
       return aluA + aluB;
-   //   
    if (aluFun == SUBQ)
       return aluB - aluA;
-   //   
    if (aluFun == ANDQ)
       return aluA & aluB;
-   //
    if (aluFun == XORQ) 
       return aluA ^ aluB;
 }
 
+/*
+ * get_edstE 
+ *
+ * returns e_dstE
+*/
 uint64_t ExecuteStage::get_edstE() {
    return e_dstE;
 }
 
+/*
+ * get_evalE 
+ *
+ * returns e_valE
+*/
 uint64_t ExecuteStage::get_evalE() {
    return e_valE;
 }

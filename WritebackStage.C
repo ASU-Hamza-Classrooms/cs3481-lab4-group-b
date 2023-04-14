@@ -30,7 +30,12 @@ bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
         return false;
 }
 
-
+/* doClockHigh
+ * applies the appropriate control signal to the F
+ * register instance
+ *
+ * @param: pregs - array of the pipeline register (F, D, E, M, W instances)
+ */
 void WritebackStage::doClockHigh(PipeReg ** pregs)
 {
     W * wreg = (W *) pregs[WREG];
@@ -38,6 +43,6 @@ void WritebackStage::doClockHigh(PipeReg ** pregs)
     RegisterFile * regFile = RegisterFile::getInstance();
     // Temporary boolean variable for errors
     bool error = false;
-    
+    // Write valE and dstE to the register file
     regFile->writeRegister(wreg->getvalE()->getOutput(), wreg->getdstE()->getOutput(), error);
 }
