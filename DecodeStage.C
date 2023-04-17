@@ -195,6 +195,9 @@ uint64_t DecodeStage::getdstM(uint64_t D_icode, uint64_t D_rA)
 */
 uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, M * mreg, W * wreg, Stage ** stages)
 {
+   // Prevents method from selecting a valE that it will not use
+   if (d_srcA == RNONE)
+      return 0;
    ExecuteStage * exe = (ExecuteStage *) stages[ESTAGE];
    if (d_srcA == exe->get_edstE())
       return exe->get_evalE();
@@ -220,6 +223,9 @@ uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, M * mreg, W * w
 */
 uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB, M * mreg, W * wreg, Stage ** stages)
 {
+   // Prevents method from selecting a valE that it will not use
+   if (d_srcB == RNONE)
+      return 0;
    ExecuteStage * exe = (ExecuteStage *) stages[ESTAGE];
    if (d_srcB == exe->get_edstE())
       return exe->get_evalE();
