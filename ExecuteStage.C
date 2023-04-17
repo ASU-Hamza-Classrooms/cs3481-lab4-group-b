@@ -49,12 +49,12 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    // Sets the Condition Codes (CC)
    if (set_cc(ereg->geticode()->getOutput()))
       CC(e_valE, alu_fun, alu_A, alu_B);
-   
-   // Set new dstE to send to M register
-   e_dstE = eDstE(ereg->geticode()->getOutput(), ereg->getdstE()->getOutput(), 0);
 
    // Sets e_Cnd
    uint64_t e_Cnd = cond(ereg->geticode()->getOutput(), ereg->getifun()->getOutput());
+   
+   // Set new dstE to send to M register
+   e_dstE = eDstE(ereg->geticode()->getOutput(), ereg->getdstE()->getOutput(), e_Cnd);
    
    // Sets inputs for the M register
    setMInput(mreg, ereg->getstat()->getOutput(), ereg->geticode()->getOutput(), e_Cnd, e_valE, 
