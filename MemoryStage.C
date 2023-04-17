@@ -13,7 +13,7 @@
 #include "Status.h"
 #include "Debug.h"
 
-uint64_t m_valM;
+
 /*
  * doClockLow:
  * Performs the Memory stage combinational logic that is performed when

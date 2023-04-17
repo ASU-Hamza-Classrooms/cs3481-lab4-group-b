@@ -15,12 +15,6 @@
 #include "ConditionCodes.h"
 #include "Tools.h"
 
-// e_dstE made global in order to implement forwarding
-uint64_t e_dstE;
-
-// e_valE made global in order to implement forwarding
-uint64_t e_valE;
-
 /*
  * doClockLow:
  * Performs the Execute stage combinational logic that is performed when
