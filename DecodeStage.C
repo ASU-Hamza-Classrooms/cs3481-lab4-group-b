@@ -12,6 +12,7 @@
 #include "Stage.h"
 #include "DecodeStage.h"
 #include "ExecuteStage.h"
+#include "MemoryStage.h"
 #include "Status.h"
 #include "Debug.h"
 
@@ -50,7 +51,7 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t d_rvalB = regFile ->readRegister(srcB, error);
 
    // uses d_rvalA and d_rvalB to assess forwarding
-   uint64_t fwd_A = selFwdA(srcA, d_rvalA, mreg, wreg, stages);
+   uint64_t fwd_A = selFwdA(srcA, d_rvalA, dreg, mreg, wreg, stages);
    uint64_t fwd_B = fwdB(srcB, d_rvalB, mreg, wreg, stages);
 
    // Set inputs for the E register
@@ -187,22 +188,34 @@ uint64_t DecodeStage::getdstM(uint64_t D_icode, uint64_t D_rA)
  * 
  * @param d_srcA - srcA from the DecodeStage
  * @param d_rvalA - rvalA from the DecodeStage
+ * @param dreg - DecodeStage register
  * @param mreg - MemoryStage register
  * @param wreg - WritebackStage register
  * @param stages - array of Y86 stages
  * 
  * 
 */
-uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, M * mreg, W * wreg, Stage ** stages)
+uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, D * dreg, M * mreg, W * wreg, Stage ** stages)
 {
    // Prevents method from selecting a valE that it will not use
    if (d_srcA == RNONE)
       return 0;
+   
    ExecuteStage * exe = (ExecuteStage *) stages[ESTAGE];
+   MemoryStage * mem = (MemoryStage *) stages[MSTAGE];
+   
+   uint64_t D_icode = dreg->geticode()->getOutput();
+
+   if (D_icode == ICALL || IJXX)
+      return dreg->getvalP()->getOutput();
    if (d_srcA == exe->get_edstE())
       return exe->get_evalE();
+   if (d_srcA == mreg->getdstM()->getOutput())
+      return mem->getm_valM();
    if (d_srcA == mreg->getdstE()->getOutput())
       return mreg->getvalE()->getOutput();
+   if (d_srcA == wreg->getdstM()->getOutput())
+      return wreg->getvalM()->getOutput();
    if (d_srcA == wreg->getdstE()->getOutput())
       return wreg->getvalE()->getOutput();
    else
@@ -226,11 +239,18 @@ uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB, M * mreg, W * wreg
    // Prevents method from selecting a valE that it will not use
    if (d_srcB == RNONE)
       return 0;
+  
    ExecuteStage * exe = (ExecuteStage *) stages[ESTAGE];
+   MemoryStage * mem = (MemoryStage *) stages[MSTAGE];
+
    if (d_srcB == exe->get_edstE())
       return exe->get_evalE();
+   if (d_srcB == mreg->getdstM()->getOutput())
+      return mem->getm_valM();
    if (d_srcB == mreg->getdstE()->getOutput())
       return mreg->getvalE()->getOutput();
+   if (d_srcB == wreg->getdstM()->getOutput())
+      return wreg->getvalM()->getOutput();
    if (d_srcB == wreg->getdstE()->getOutput())
       return wreg->getvalE()->getOutput();
    else
