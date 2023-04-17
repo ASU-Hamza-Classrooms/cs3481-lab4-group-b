@@ -280,9 +280,12 @@ uint64_t ExecuteStage::ALU(uint64_t aluFun, uint64_t aluA, uint64_t aluB) {
 
 uint64_t ExecuteStage::cond(uint64_t icode, uint64_t ifun) {
    if (icode == IJXX || icode == ICMOVXX) {
+      // JMP / RRMOVQ
+      if (ifun == 0)
+         return 1;
       // JLE / CMOVLE
       if (ifun == 1)
-         return (SF ^ OF) | ZF;
+         return (SF ^ OF) || ZF;
       // JL / CMOVL
       if (ifun == 2)
          return (SF ^ OF);
@@ -293,14 +296,13 @@ uint64_t ExecuteStage::cond(uint64_t icode, uint64_t ifun) {
       if (ifun == 4)
          return !ZF;
       // JGE / CMOVGE
-      if (ifun == 5)
+      if (ifun == 6)
          return !(SF ^ OF);
       // JG / CMOVG
-      if (ifun == 6)
-         return !(SF ^ OF) & !ZF;
+      if (ifun == 5)
+         return !(SF ^ OF) && !ZF;
    }
-   else 
-      return 0;
+   return 0;
 }
 
 /*
