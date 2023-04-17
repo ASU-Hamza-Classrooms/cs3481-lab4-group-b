@@ -278,37 +278,48 @@ uint64_t ExecuteStage::ALU(uint64_t aluFun, uint64_t aluA, uint64_t aluB) {
       return aluA ^ aluB;
 }
 
-uint64_t ExecuteStage::cond(uint64_t icode, uint64_t ifun) {
+/*
+ * cond
+ *
+ * Calculates e_Cnd using E_icode and E_ifun. If icode is not 
+ *    IJXX or ICMOVXX then it returns 0.
+ * 
+ * @patam E_icode - instruction code from Execute Register
+ * @param E_ifun - instruction function from Execute Register
+ * 
+*/
+uint64_t ExecuteStage::cond(uint64_t E_icode, uint64_t E_ifun) {
    // get the instance of the ConditionCodes (Singleton)
    ConditionCodes * cc = ConditionCodes::getInstance();
    // error variable used for method calls
    bool error = false;
 
+   // Grab the current flags (SF, OF, and ZF)
    uint64_t c_SF = cc->getConditionCode(SF, error);
    uint64_t c_OF = cc->getConditionCode(OF, error);
    uint64_t c_ZF = cc->getConditionCode(ZF, error);
 
-   if (icode == IJXX || icode == ICMOVXX) {
+   if (E_icode == IJXX || E_icode == ICMOVXX) {
       // JMP / RRMOVQ
-      if (ifun == 0)
+      if (E_ifun == 0)
          return 1;
       // JLE / CMOVLE
-      if (ifun == 1)
+      if (E_ifun == 1)
          return (c_SF ^ c_OF) || c_ZF;
       // JL / CMOVL
-      if (ifun == 2)
+      if (E_ifun == 2)
          return (c_SF ^ c_OF);
       // JE / CMOVE
-      if (ifun == 3)
+      if (E_ifun == 3)
          return c_ZF;
       // JNE / CMOVNE
-      if (ifun == 4)
+      if (E_ifun == 4)
          return !c_ZF;
       // JGE / CMOVGE
-      if (ifun == 5)
+      if (E_ifun == 5)
          return !(c_SF ^ c_OF);
       // JG / CMOVG
-      if (ifun == 6)
+      if (E_ifun == 6)
          return !(c_SF ^ c_OF) && !c_ZF;
    }
    return 0;
