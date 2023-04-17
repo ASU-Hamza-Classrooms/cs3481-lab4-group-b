@@ -52,9 +52,12 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    
    // Set new dstE to send to M register
    e_dstE = eDstE(ereg->geticode()->getOutput(), ereg->getdstE()->getOutput(), 0);
+
+   // Sets e_Cnd
+   uint64_t e_Cnd = cond(ereg->geticode()->getOutput(), ereg->getifun()->getOutput());
    
    // Sets inputs for the M register
-   setMInput(mreg, ereg->getstat()->getOutput(), ereg->geticode()->getOutput(), 0, e_valE, 
+   setMInput(mreg, ereg->getstat()->getOutput(), ereg->geticode()->getOutput(), e_Cnd, e_valE, 
       ereg->getvalA()->getOutput(), e_dstE, ereg->getdstM()->getOutput());
    return false;
 }
@@ -273,6 +276,31 @@ uint64_t ExecuteStage::ALU(uint64_t aluFun, uint64_t aluA, uint64_t aluB) {
       return aluA & aluB;
    if (aluFun == XORQ) 
       return aluA ^ aluB;
+}
+
+uint64_t ExecuteStage::cond(uint64_t icode, uint64_t ifun) {
+   if (icode == IJXX || icode == ICMOVXX) {
+      // JLE / CMOVLE
+      if (ifun == 1)
+         return (SF ^ OF) | ZF;
+      // JL / CMOVL
+      if (ifun == 2)
+         return (SF ^ OF);
+      // JE / CMOVE
+      if (ifun == 3)
+         return ZF;
+      // JNE / CMOVNE
+      if (ifun == 4)
+         return !ZF;
+      // JGE / CMOVGE
+      if (ifun == 5)
+         return !(SF ^ OF);
+      // JG / CMOVG
+      if (ifun == 6)
+         return !(SF ^ OF) & !ZF;
+   }
+   else 
+      return 0;
 }
 
 /*

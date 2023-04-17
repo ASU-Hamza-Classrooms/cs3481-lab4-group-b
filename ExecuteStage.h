@@ -16,4 +16,5 @@ class ExecuteStage: public Stage
       uint64_t ALU(uint64_t aluFun, uint64_t aluA, uint64_t aluB);
       uint64_t get_edstE();
       uint64_t get_evalE();
+      uint64_t cond(uint64_t icode, uint64_t ifun);
 };
