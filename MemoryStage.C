@@ -32,6 +32,7 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 
    uint64_t addr = mem_addr(mreg);
 
+   m_valM = 0;
    if (mem_read(mreg))
    {
       bool mem_error = false;
@@ -42,7 +43,7 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    {
       bool write_error = false;
       mem_instance->putLong(mreg->getvalA()->getOutput(), addr, write_error);
-      m_valM = mreg->getvalA()->getOutput();
+      
    }
 
    // sets input of W register
