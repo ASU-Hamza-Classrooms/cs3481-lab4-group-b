@@ -279,28 +279,37 @@ uint64_t ExecuteStage::ALU(uint64_t aluFun, uint64_t aluA, uint64_t aluB) {
 }
 
 uint64_t ExecuteStage::cond(uint64_t icode, uint64_t ifun) {
+   // get the instance of the ConditionCodes (Singleton)
+   ConditionCodes * cc = ConditionCodes::getInstance();
+   // error variable used for method calls
+   bool error = false;
+
+   uint64_t c_SF = cc->getConditionCode(SF, error);
+   uint64_t c_OF = cc->getConditionCode(OF, error);
+   uint64_t c_ZF = cc->getConditionCode(ZF, error);
+
    if (icode == IJXX || icode == ICMOVXX) {
       // JMP / RRMOVQ
       if (ifun == 0)
          return 1;
       // JLE / CMOVLE
       if (ifun == 1)
-         return (SF ^ OF) || ZF;
+         return (c_SF ^ c_OF) || c_ZF;
       // JL / CMOVL
       if (ifun == 2)
-         return (SF ^ OF);
+         return (c_SF ^ c_OF);
       // JE / CMOVE
       if (ifun == 3)
-         return ZF;
+         return c_ZF;
       // JNE / CMOVNE
       if (ifun == 4)
-         return !ZF;
+         return !c_ZF;
       // JGE / CMOVGE
-      if (ifun == 6)
-         return !(SF ^ OF);
-      // JG / CMOVG
       if (ifun == 5)
-         return !(SF ^ OF) && !ZF;
+         return !(c_SF ^ c_OF);
+      // JG / CMOVG
+      if (ifun == 6)
+         return !(c_SF ^ c_OF) && !c_ZF;
    }
    return 0;
 }
