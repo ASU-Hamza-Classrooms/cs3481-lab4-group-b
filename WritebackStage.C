@@ -45,4 +45,5 @@ void WritebackStage::doClockHigh(PipeReg ** pregs)
     bool error = false;
     // Write valE and dstE to the register file
     regFile->writeRegister(wreg->getvalE()->getOutput(), wreg->getdstE()->getOutput(), error);
+    regFile->writeRegister(wreg->getvalM()->getOutput(), wreg->getdstM()->getOutput(), error);
 }

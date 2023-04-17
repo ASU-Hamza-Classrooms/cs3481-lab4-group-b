@@ -2,6 +2,8 @@
 #include <cstdint>
 #include "RegisterFile.h"
 #include "PipeRegField.h"
+#include "Instructions.h"
+#include "Memory.h"
 #include "PipeReg.h"
 #include "E.h"
 #include "M.h"
@@ -11,6 +13,7 @@
 #include "Status.h"
 #include "Debug.h"
 
+uint64_t m_valM;
 /*
  * doClockLow:
  * Performs the Memory stage combinational logic that is performed when
@@ -25,9 +28,26 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    M * mreg = (M *) pregs[MREG];
    W * wreg = (W *) pregs[WREG];
 
+   Memory * mem_instance = Memory::getInstance();
+
+   uint64_t addr = mem_addr(mreg);
+
+   if (mem_read(mreg))
+   {
+      bool mem_error = false;
+      m_valM = mem_instance->getLong(addr, mem_error);
+   }
+
+   if (mem_write(mreg))
+   {
+      bool write_error = false;
+      mem_instance->putLong(mreg->getvalA()->getOutput(), addr, write_error);
+      m_valM = mreg->getvalA()->getOutput();
+   }
+
    // sets input of W register
    setWInput(wreg, mreg->getstat()->getOutput(), mreg->geticode()->getOutput(), mreg->getvalE()->getOutput(),
-   	0, mreg->getdstE()->getOutput(), mreg->getdstM()->getOutput());
+   	m_valM, mreg->getdstE()->getOutput(), mreg->getdstM()->getOutput());
    return false;
 }
 
@@ -72,4 +92,38 @@ void MemoryStage::setWInput(W * wreg, uint64_t stat, uint64_t icode, uint64_t va
    wreg->getvalM()->setInput(valM);
    wreg->getdstE()->setInput(dstE);
    wreg->getdstM()->setInput(dstM);
+}
+
+uint64_t MemoryStage::mem_addr(M * mreg)
+{
+   uint64_t M_icode = mreg->geticode()->getOutput();
+
+   if (M_icode == IRMMOVQ || M_icode == IPUSHQ || M_icode == ICALL 
+      || M_icode == IMRMOVQ)
+      return mreg->getvalE()->getOutput();
+   if (M_icode == IPOPQ || M_icode == IRET)
+      return mreg->getvalA()->getOutput();
+   else
+      return 0;
+}
+
+bool MemoryStage::mem_read(M * mreg)
+{
+   uint64_t M_icode = mreg->geticode()->getOutput();
+
+   return M_icode == IMRMOVQ || M_icode == IPOPQ || M_icode == IRET;
+
+}
+
+bool MemoryStage::mem_write(M * mreg)
+{
+   uint64_t M_icode = mreg->geticode()->getOutput();
+
+   return M_icode == IRMMOVQ || M_icode == IPUSHQ || M_icode == ICALL;
+
+}
+
+uint64_t MemoryStage::getm_valM()
+{
+   return m_valM;
 }
