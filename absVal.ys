@@ -3,6 +3,47 @@
 #initialization code and then five chunks
 #of code that are basically identical.
 
+      irmovq list, %rsi
+      irmovq $1, %rdx
+
+      mrmovq (%rsi), %rax
+      nop
+      nop
+      irmovq $-1, %rcx
+      xorq %rcx, %rax
+      addq %rdx, %rax
+      rmmovq %rax, (%rsi)
+      
+      mrmovq 8(%rsi), %rax
+      nop
+      nop
+      irmovq $0, %rcx
+      xorq %rcx, %rax
+      rmmovq %rax, 8(%rsi)
+
+      mrmovq 16(%rsi), %rax
+      nop
+      nop
+      irmovq $-1, %rcx
+      xorq %rcx, %rax
+      addq %rdx, %rax
+      rmmovq %rax, 16(%rsi)
+
+      mrmovq 24(%rsi), %rax
+      nop
+      nop
+      irmovq $0, %rcx
+      xorq %rcx, %rax
+      rmmovq %rax, 24(%rsi)
+
+      mrmovq 32(%rsi), %rax
+      nop
+      nop
+      irmovq $-1, %rcx
+      xorq %rcx, %rax
+      addq %rdx, %rax
+      rmmovq %rax, 32(%rsi)
+
       .align 8
 list: .quad -2            #at end: 2
       .quad 5             #at end: 5 
