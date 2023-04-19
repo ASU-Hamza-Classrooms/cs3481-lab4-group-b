@@ -28,17 +28,23 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    M * mreg = (M *) pregs[MREG];
    W * wreg = (W *) pregs[WREG];
 
+   // getting memory instance to access
    Memory * mem_instance = Memory::getInstance();
 
+   // getting address of memory
    uint64_t addr = mem_addr(mreg);
 
+   // set m_valM to 0 for if statements below
    m_valM = 0;
+
+   // if mem_read is true, this statement reads from memory
    if (mem_read(mreg))
    {
       bool mem_error = false;
       m_valM = mem_instance->getLong(addr, mem_error);
    }
 
+   // if mem_write is true, this statement writes to memory
    if (mem_write(mreg))
    {
       bool write_error = false;
@@ -95,6 +101,11 @@ void MemoryStage::setWInput(W * wreg, uint64_t stat, uint64_t icode, uint64_t va
    wreg->getdstM()->setInput(dstM);
 }
 
+/* mem_addr
+ * determines the address read from or written to.
+ * 
+ * @params: mreg - pointer to the memory stage register
+*/
 uint64_t MemoryStage::mem_addr(M * mreg)
 {
    uint64_t M_icode = mreg->geticode()->getOutput();
@@ -108,6 +119,11 @@ uint64_t MemoryStage::mem_addr(M * mreg)
       return 0;
 }
 
+/* mem_read
+ * determines if the current instruction reads from memory.
+ * 
+ * @params: mreg - pointer to the memory stage register
+*/
 bool MemoryStage::mem_read(M * mreg)
 {
    uint64_t M_icode = mreg->geticode()->getOutput();
@@ -116,6 +132,11 @@ bool MemoryStage::mem_read(M * mreg)
 
 }
 
+/* mem_write
+ * determines if the current instruction writes to memory.
+ * 
+ * @params: mreg - pointer to the memory stage register
+*/
 bool MemoryStage::mem_write(M * mreg)
 {
    uint64_t M_icode = mreg->geticode()->getOutput();
@@ -124,6 +145,10 @@ bool MemoryStage::mem_write(M * mreg)
 
 }
 
+/* getm_valM
+ * returns m_valM from the memory stage
+ * 
+*/
 uint64_t MemoryStage::getm_valM()
 {
    return m_valM;

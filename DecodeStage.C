@@ -247,6 +247,7 @@ uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, D *dreg, M *mre
  */
 uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB, M *mreg, W *wreg, Stage **stages)
 {
+   // Create pointers to the Memory and Execute Stages
    ExecuteStage *exe = (ExecuteStage *)stages[ESTAGE];
    MemoryStage *mem = (MemoryStage *)stages[MSTAGE];
 
