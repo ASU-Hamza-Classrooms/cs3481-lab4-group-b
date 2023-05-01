@@ -37,12 +37,21 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    // set m_valM to 0 for if statements below
    m_valM = 0;
 
+   // memory error variable.
+   bool mem_error = false;
+
    // if mem_read is true, this statement reads from memory
    if (mem_read(mreg))
    {
-      bool mem_error = false;
       m_valM = mem_instance->getLong(addr, mem_error);
    }
+
+   // if mem_error is true, set m_stat to an error code.
+   if (mem_error)
+      m_stat = SADR;
+   // else set m_stat to M_stat.
+   else
+      m_stat = mreg->getstat()->getOutput();
 
    // if mem_write is true, this statement writes to memory
    if (mem_write(mreg))
@@ -147,9 +156,16 @@ bool MemoryStage::mem_write(M * mreg)
 
 /* getm_valM
  * returns m_valM from the memory stage
- * 
-*/
+ */
 uint64_t MemoryStage::getm_valM()
 {
    return m_valM;
+}
+
+/* getm_stat
+ * returns m_stat from the memory stage
+ */
+uint64_t MemoryStage::getm_stat()
+{
+   return m_stat;
 }

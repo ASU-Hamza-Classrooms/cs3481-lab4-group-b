@@ -5,6 +5,7 @@ class MemoryStage: public Stage
                      uint64_t valM, uint64_t dstE,
                      uint64_t dstM);
       uint64_t m_valM;
+      uint64_t m_stat;
    public:
       bool doClockLow(PipeReg ** pregs, Stage ** stages);
       void doClockHigh(PipeReg ** pregs);
@@ -12,4 +13,5 @@ class MemoryStage: public Stage
       bool mem_read(M * mreg);
       bool mem_write(M * mreg);
       uint64_t getm_valM();
+      uint64_t getm_stat();
 };
