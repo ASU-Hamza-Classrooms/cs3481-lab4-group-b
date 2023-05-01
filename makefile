@@ -17,11 +17,11 @@ Simulate.o: PipeRegField.h PipeReg.h F.h D.h E.h M.h W.h Stage.h ExecuteStage.h 
 
 DecodeStage.o: Stage.h RegisterFile.h Instructions.h PipeRegField.h PipeReg.h F.h D.h E.h DecodeStage.h Status.h Debug.h
 
-ExecuteStage.o: Stage.h RegisterFile.h PipeRegField.h PipeReg.h D.h E.h M.h W.h ExecuteStage.h Status.h Debug.h
+ExecuteStage.o: Stage.h Instructions.h RegisterFile.h PipeRegField.h PipeReg.h D.h E.h M.h W.h ExecuteStage.h MemoryStage.h Status.h Debug.h ConditionCodes.h Tools.h
 
 FetchStage.o: Stage.h Instructions.h RegisterFile.h PipeRegField.h PipeReg.h F.h D.h M.h W.h FetchStage.h Status.h Debug.h Tools.h Memory.h
 
-MemoryStage.o: Stage.h RegisterFile.h PipeRegField.h PipeReg.h E.h M.h W.h MemoryStage.h Status.h Debug.h
+MemoryStage.o: Stage.h RegisterFile.h PipeRegField.h Instructions.h PipeReg.h E.h M.h W.h MemoryStage.h Status.h Debug.h
 
 WritebackStage.o: Stage.h Instructions.h RegisterFile.h PipeRegField.h PipeReg.h M.h W.h WritebackStage.h Status.h Debug.h
 

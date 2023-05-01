@@ -55,7 +55,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //getting the ifun from the instruction byte
    ifun = Tools::getBits(instByte, 0, 3);
 
-    stat = f_stat(mem_error, icode);
+   stat = f_stat(mem_error, icode);
    // Set icode to NOP if mem_error is true
    if (mem_error)
       icode = INOP;
