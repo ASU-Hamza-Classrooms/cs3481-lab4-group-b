@@ -48,12 +48,14 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    Memory * mem_instance = Memory::getInstance();
    uint8_t instByte = mem_instance->getByte(f_pc, mem_error);
 
+   
    //getting the icode from instruction byte
    icode = Tools::getBits(instByte, 4, 7);
 
    //getting the ifun from the instruction byte
    ifun = Tools::getBits(instByte, 0, 3);
 
+    stat = f_stat(mem_error, icode);
    // Set icode to NOP if mem_error is true
    if (mem_error)
       icode = INOP;
