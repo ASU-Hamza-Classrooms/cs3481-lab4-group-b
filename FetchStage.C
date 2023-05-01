@@ -47,22 +47,22 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //gets instruction byte from memory
    Memory * mem_instance = Memory::getInstance();
    uint8_t instByte = mem_instance->getByte(f_pc, mem_error);
-
    
-   //getting the icode from instruction byte
-   icode = Tools::getBits(instByte, 4, 7);
-
-   //getting the ifun from the instruction byte
-   ifun = Tools::getBits(instByte, 0, 3);
-
-   stat = f_stat(mem_error, icode);
    // Set icode to NOP if mem_error is true
    if (mem_error)
       icode = INOP;
+   // else get icode from instruction byte
+   else 
+      icode = Tools::getBits(instByte, 4, 7);
 
    // Set ifun to FNONE if mem_error is true
    if (mem_error)
       ifun = FNONE;
+   // else get ifun from the instruction byte
+   else 
+      ifun = Tools::getBits(instByte, 0, 3);
+
+   stat = f_stat(mem_error, icode);
 
    //setting valP from PCIncrement
    valP = PCincrement(f_pc, needRegIds(icode), needValC(icode));
@@ -268,7 +268,7 @@ bool FetchStage::instr_valid(uint64_t f_icode)
 }
 
 /* f_stat
- * checks to make sure the ifun is valid. 
+ * checks to make sure the icode is valid. 
  *
  * @param: f_icode - icode from the F register.
  * @param: mem_error - memory error variable.
