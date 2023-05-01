@@ -35,6 +35,9 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    MemoryStage * mem = (MemoryStage *) stages[MSTAGE];
    uint64_t m_stat = mem->getm_stat();
    M_bubble = calculateControlSignals(m_stat, wreg->getstat()->getOutput());
+   //printf("\n====================================================================");
+   //printf("M_bubble: %d",M_bubble);
+   //printf("====================================================================\n");
 
    // Sets e_valE to the result of the ALU.  The value of e_valE is then stored in M_valE.
    // Get the value returned from aluFun

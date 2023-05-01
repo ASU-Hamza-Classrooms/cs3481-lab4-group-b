@@ -46,12 +46,10 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
       m_valM = mem_instance->getLong(addr, mem_error);
    }
 
+   m_stat = mreg->getstat()->getOutput();
    // if mem_error is true, set m_stat to an error code.
    if (mem_error)
       m_stat = SADR;
-   // else set m_stat to M_stat.
-   else
-      m_stat = mreg->getstat()->getOutput();
 
    // if mem_write is true, this statement writes to memory
    if (mem_write(mreg))
