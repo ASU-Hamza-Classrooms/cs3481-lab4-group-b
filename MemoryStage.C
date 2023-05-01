@@ -58,11 +58,10 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    {
       bool write_error = false;
       mem_instance->putLong(mreg->getvalA()->getOutput(), addr, write_error);
-      
    }
 
    // sets input of W register
-   setWInput(wreg, mreg->getstat()->getOutput(), mreg->geticode()->getOutput(), mreg->getvalE()->getOutput(),
+   setWInput(wreg, m_stat, mreg->geticode()->getOutput(), mreg->getvalE()->getOutput(),
    	m_valM, mreg->getdstE()->getOutput(), mreg->getdstM()->getOutput());
    return false;
 }
