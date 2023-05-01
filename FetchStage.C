@@ -54,6 +54,14 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //getting the ifun from the instruction byte
    ifun = Tools::getBits(instByte, 0, 3);
 
+   // Set icode to NOP if mem_error is true
+   if (mem_error)
+      icode = INOP;
+
+   // Set ifun to FNONE if mem_error is true
+   if (mem_error)
+      ifun = FNONE;
+
    //setting valP from PCIncrement
    valP = PCincrement(f_pc, needRegIds(icode), needValC(icode));
 
@@ -197,16 +205,13 @@ uint64_t FetchStage::PCincrement(uint64_t f_pc, bool needRegIds, bool needValC)
    f_pc++;
 
    // instruction is 10 bytes total.
-   if (needRegIds && needValC) 
-   	f_pc += 9;
+   if (needRegIds) 
+   	f_pc++;
 
    // instruction is 9 bytes total.
-   if (!needRegIds && needValC) 
+   if (needValC) 
    	f_pc += 8;
 
-   // instruction is 2 bytes total.
-   if (needRegIds && !needValC) 
-   	f_pc += 1;
    return f_pc;
 }
 
@@ -248,3 +253,31 @@ uint64_t FetchStage::buildValC(uint64_t f_pc)
    return Tools::buildLong(byte);
 }
 
+/* instructionValid
+ * checks to make sure the icode is valid. 
+ *
+ * @param: f_icode - icode from the F register.
+ */
+bool FetchStage::instr_valid(uint64_t f_icode)
+{
+   return f_icode == INOP || f_icode == IHALT || f_icode == IRRMOVQ || f_icode == IIRMOVQ
+      || f_icode ==  IRMMOVQ || f_icode == IMRMOVQ || f_icode == IOPQ || f_icode ==IJXX
+      || f_icode == ICALL || f_icode == IRET || f_icode == IPUSHQ || f_icode ==IPOPQ;
+}
+
+/* f_stat
+ * checks to make sure the ifun is valid. 
+ *
+ * @param: f_icode - icode from the F register.
+ * @param: mem_error - memory error variable.
+ */
+uint64_t FetchStage::f_stat(bool mem_error, uint64_t f_icode)
+{
+   if (mem_error)
+      return SADR;
+   if (!instr_valid(f_icode))
+      return SINS;
+   if (f_icode == IHALT)
+      return SHLT;
+   return SAOK;
+}
