@@ -10,6 +10,7 @@
 #include "W.h"
 #include "Stage.h"
 #include "ExecuteStage.h"
+#include "MemoryStage.h"
 #include "Status.h"
 #include "Debug.h"
 #include "ConditionCodes.h"
@@ -28,7 +29,14 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 { 
    E * ereg = (E *) pregs[EREG];
    M * mreg = (M *) pregs[MREG];
+   W * wreg = (W *) pregs[WREG];
 
+   
+   MemoryStage * mem = (MemoryStage *) stages[MSTAGE];
+
+   uint64_t m_stat = mem->getm_stat();
+
+   M_bubble = calculateControlSignals(m_stat, wreg->getstat()->getOutput());
    // Sets e_valE to the result of the ALU.  The value of e_valE is then stored in M_valE.
    // Get the value returned from aluFun
    uint64_t alu_fun = aluFun(ereg->getifun()->getOutput(), ereg->geticode()->getOutput());
@@ -39,9 +47,9 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t alu_B = aluB(ereg->geticode()->getOutput(), ereg->getvalB()->getOutput());
    // Sets the ALU
    e_valE = ALU(alu_fun, alu_A, alu_B);
-
+   
    // Sets the Condition Codes (CC)
-   if (set_cc(ereg->geticode()->getOutput()))
+   if (set_cc(ereg->geticode()->getOutput(), m_stat, wreg->getstat()->getOutput()))
       CC(e_valE, alu_fun, alu_A, alu_B);
 
    // Sets e_Cnd
@@ -67,14 +75,26 @@ void ExecuteStage::doClockHigh(PipeReg ** pregs)
 {
    M * mreg = (M *) pregs[MREG];
 
-   
-   mreg->getstat()->normal(); 
-   mreg->geticode()->normal();
-   mreg->getCnd()->normal();
-   mreg->getvalE()->normal();
-   mreg->getvalA()->normal();
-   mreg->getdstE()->normal();
-   mreg->getdstM()->normal();
+   //bubbleM
+   if (M_bubble) {
+      mreg->getstat()->bubble(SAOK);
+      mreg->geticode()->bubble(INOP);
+      mreg->getCnd()->bubble();
+      mreg->getvalE()->bubble();
+      mreg->getvalA()->bubble();
+      mreg->getdstE()->bubble(RNONE);
+      mreg->getdstM()->bubble(RNONE);
+   }
+   //normalM
+   else {
+      mreg->getstat()->normal(); 
+      mreg->geticode()->normal();
+      mreg->getCnd()->normal();
+      mreg->getvalE()->normal();
+      mreg->getvalA()->normal();
+      mreg->getdstE()->normal();
+      mreg->getdstM()->normal();
+   }
 }
 
 /* setMInput
@@ -165,9 +185,10 @@ uint64_t ExecuteStage::aluFun(uint64_t E_ifun, uint64_t E_icode)
  * @param E_icode - icode from the ExecuteStage register
  * 
 */
-bool ExecuteStage::set_cc(uint64_t E_icode)
+bool ExecuteStage::set_cc(uint64_t E_icode, uint64_t m_stat, uint64_t W_stat)
 {
-   return E_icode == IOPQ;
+   return (E_icode == IOPQ) && (!m_stat == SADR || !m_stat == SINS || !m_stat == SHLT)
+      && (!W_stat == SADR || !W_stat == SINS || !W_stat == SHLT);
 }
 
 /*
@@ -335,4 +356,9 @@ uint64_t ExecuteStage::get_edstE() {
 */
 uint64_t ExecuteStage::get_evalE() {
    return e_valE;
+}
+
+bool ExecuteStage::calculateControlSignals(uint64_t m_stat, uint64_t W_stat) {
+   return (m_stat == SADR || m_stat == SINS || m_stat == SHLT) 
+      || (W_stat == SADR || W_stat == SINS || W_stat == SHLT);
 }
