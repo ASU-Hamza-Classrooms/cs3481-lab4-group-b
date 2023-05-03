@@ -94,8 +94,14 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
       valC = buildValC(f_pc, icode);
    }
 
-   printf("===============================================\n");
-   printf("valC: %x\n", valC);
+   // printf("===============================================\n");
+   // printf("valC: %x\n", valC);
+
+   //getting the predicted PC and storing it in the temp variable
+   tempPredPC = predictPC(icode, valC, valP);
+
+   //The value passed to setInput below will need to be changed
+   freg->getpredPC()->setInput(tempPredPC);
 
    //provide the input values for the D register
    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
@@ -268,8 +274,8 @@ uint64_t FetchStage::buildValC(uint64_t f_pc, uint64_t f_icode)
    int end;
    int i;
 
-   printf("===============================================\n");
-   printf("f_icode: %x\n", f_icode);
+   // printf("===============================================\n");
+   // printf("f_icode: %x\n", f_icode);
 
    // if icode is JXX or CALL
    if (f_icode == IJXX || f_icode == ICALL) {
