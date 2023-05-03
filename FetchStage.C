@@ -6,10 +6,12 @@
 #include "PipeReg.h"
 #include "F.h"
 #include "D.h"
+#include "E.h"
 #include "M.h"
 #include "W.h"
 #include "Stage.h"
 #include "FetchStage.h"
+#include "DecodeStage.h"
 #include "Status.h"
 #include "Debug.h"
 #include "Tools.h"
@@ -29,8 +31,11 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    F * freg = (F *) pregs[FREG];
    D * dreg = (D *) pregs[DREG];
+   E * ereg = (E *) pregs[EREG];
    M * mreg = (M *) pregs[MREG];
    W * wreg = (W *) pregs[WREG];
+
+   DecodeStage *dec = (DecodeStage *)stages[DSTAGE];
    uint64_t f_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
    uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
 
@@ -41,6 +46,10 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //The lab assignment describes what methods need to be
    //written.
    //sets f_pc
+
+   calculateControlSignals(ereg->geticode()->getOutput(), ereg->getdstM()->getOutput(), 
+      dec->getd_srcA(), dec->getd_srcB());
+
    f_pc = selectPC(freg, mreg, wreg);
    bool mem_error = false;
 
@@ -100,14 +109,17 @@ void FetchStage::doClockHigh(PipeReg ** pregs)
    F * freg = (F *) pregs[FREG];
    D * dreg = (D *) pregs[DREG];
 
-   freg->getpredPC()->normal();
-   dreg->getstat()->normal();
-   dreg->geticode()->normal();
-   dreg->getifun()->normal();
-   dreg->getrA()->normal();
-   dreg->getrB()->normal();
-   dreg->getvalC()->normal();
-   dreg->getvalP()->normal();
+   if (!F_stallVar)
+      freg->getpredPC()->normal();
+   if (!D_stallVar) {
+      dreg->getstat()->normal();
+      dreg->geticode()->normal();
+      dreg->getifun()->normal();
+      dreg->getrA()->normal();
+      dreg->getrB()->normal();
+      dreg->getvalC()->normal();
+      dreg->getvalP()->normal();
+   }
 }
 
 /* setDInput
@@ -282,4 +294,17 @@ uint64_t FetchStage::f_stat(bool mem_error, uint64_t f_icode)
    if (f_icode == IHALT)
       return SHLT;
    return SAOK;
+}
+
+bool FetchStage::F_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB) {
+   return (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB);
+}
+
+bool FetchStage::D_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB) {
+   return (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB);
+}
+
+void FetchStage::calculateControlSignals(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB) {
+   F_stallVar = F_stall(E_icode, E_dstM, d_srcA, d_srcB);
+   D_stallVar = D_stall(E_icode, E_dstM, d_srcA, d_srcB);
 }

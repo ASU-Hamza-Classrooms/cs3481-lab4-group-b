@@ -6,6 +6,8 @@ class FetchStage: public Stage
       void setDInput(D * dreg, uint64_t stat, uint64_t icode, uint64_t ifun, 
                      uint64_t rA, uint64_t rB,
                      uint64_t valC, uint64_t valP);
+      bool F_stallVar;
+      bool D_stallVar;
    public:
       bool doClockLow(PipeReg ** pregs, Stage ** stages);
       void doClockHigh(PipeReg ** pregs);
@@ -18,4 +20,7 @@ class FetchStage: public Stage
       uint64_t buildValC(uint64_t f_pc);
       bool instr_valid(uint64_t f_icode);
       uint64_t f_stat(bool mem_error, uint64_t f_icode);
+      bool F_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB);
+      bool D_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB);
+      void calculateControlSignals(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB);
 };
