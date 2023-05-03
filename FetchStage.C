@@ -47,9 +47,6 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //written.
    //sets f_pc
 
-   calculateControlSignals(ereg->geticode()->getOutput(), ereg->getdstM()->getOutput(), 
-      dec->getd_srcA(), dec->getd_srcB());
-
    f_pc = selectPC(freg, mreg, wreg);
    bool mem_error = false;
 
@@ -96,6 +93,9 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //provide the input values for the D register
    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
    return false;
+
+   calculateControlSignals(ereg->geticode()->getOutput(), ereg->getdstM()->getOutput(), 
+      dec->getd_srcA(), dec->getd_srcB());
 }
 
 /* doClockHigh
