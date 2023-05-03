@@ -91,8 +91,11 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 
    // If the instruction needs valC, this builds valC
    if (needValC(icode)) {
-      valC = buildValC(f_pc);
+      valC = buildValC(f_pc, icode);
    }
+
+   printf("===============================================\n");
+   printf("valC: %x\n", valC);
 
    //provide the input values for the D register
    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
@@ -254,19 +257,38 @@ void FetchStage::getRegIds(uint8_t instByte, uint64_t &rA, uint64_t &rB, uint64_
  *
  * @param: f_pc - value of the PC. 
  */
-uint64_t FetchStage::buildValC(uint64_t f_pc)
+uint64_t FetchStage::buildValC(uint64_t f_pc, uint64_t f_icode)
 {
    // Get the instance of Memroy(Singleton) and assign to mem_instance
    Memory * mem_instance = Memory::getInstance();
    // Array to store the bytes of valC from the instruction
    uint8_t byte[8];
 
+   int start;
+   int end;
+   int i;
+
+   printf("===============================================\n");
+   printf("f_icode: %x\n", f_icode);
+
+   // if icode is JXX or CALL
+   if (f_icode == IJXX || f_icode == ICALL) {
+      i = 1;
+      start = 1;
+      end = 9;
+   }
+   else {
+      i = 2;
+      start = 2;
+      end = 10;
+   }
+
    // Loops through valC and stores each byte in the array
-   for (int i = 2; i < 10; i++)
+   for (start; start < end; start++)
    {
       bool getError = false;
-      uint8_t numByte = mem_instance->getByte(f_pc + i, getError);
-      byte[i - 2] = numByte;
+      uint8_t numByte = mem_instance->getByte(f_pc + start, getError);
+      byte[start - i] = numByte;
    }
 
    // Buils valC from the byte array

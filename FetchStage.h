@@ -18,7 +18,7 @@ class FetchStage: public Stage
       uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP);
       uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC);
       void getRegIds(uint8_t instByte, uint64_t &rA, uint64_t &rB, uint64_t f_pc);
-      uint64_t buildValC(uint64_t f_pc);
+      uint64_t buildValC(uint64_t f_pc, uint64_t f_icode);
       bool instr_valid(uint64_t f_icode);
       uint64_t f_stat(bool mem_error, uint64_t f_icode);
       bool F_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB);
