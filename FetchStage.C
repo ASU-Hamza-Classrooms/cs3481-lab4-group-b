@@ -38,6 +38,8 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    DecodeStage *dec = (DecodeStage *)stages[DSTAGE];
    uint64_t f_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
    uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
+   F_stallVar = false;
+   D_stallVar = false;
 
    //code missing here to select the value of the PC
    //and fetch the instruction from memory
