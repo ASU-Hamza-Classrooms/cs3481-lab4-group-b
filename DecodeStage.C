@@ -33,11 +33,12 @@ bool DecodeStage::doClockLow(PipeReg **pregs, Stage **stages)
    W *wreg = (W *)pregs[WREG];
 
    RegisterFile *regFile = RegisterFile::getInstance();
+   E_bubble = false;
 
    // setting icode, srcA, srcB
    uint64_t icode = dreg->geticode()->getOutput();
-   uint64_t srcA = getsrcA(icode, dreg->getrA()->getOutput());
-   uint64_t srcB = getsrcB(icode, dreg->getrB()->getOutput());
+   srcA = getsrcA(icode, dreg->getrA()->getOutput());
+   srcB = getsrcB(icode, dreg->getrB()->getOutput());
 
    // setting dstE, dstM
    uint64_t dstE = getdstE(icode, dreg->getrB()->getOutput());
@@ -58,6 +59,8 @@ bool DecodeStage::doClockLow(PipeReg **pregs, Stage **stages)
    setEInput(ereg, dreg->getstat()->getOutput(), dreg->geticode()->getOutput(), dreg->getifun()->getOutput(),
              dreg->getvalC()->getOutput(), fwd_A, fwd_B, dstE, dstM, srcA, srcB);
    return false;
+
+   E_bubble = calculateControlSignals(ereg);
 }
 
 /* doClockHigh
@@ -70,16 +73,30 @@ void DecodeStage::doClockHigh(PipeReg **pregs)
 {
    E *ereg = (E *)pregs[EREG];
 
-   ereg->getstat()->normal();
-   ereg->geticode()->normal();
-   ereg->getifun()->normal();
-   ereg->getvalC()->normal();
-   ereg->getvalA()->normal();
-   ereg->getvalB()->normal();
-   ereg->getdstE()->normal();
-   ereg->getdstM()->normal();
-   ereg->getsrcA()->normal();
-   ereg->getsrcB()->normal();
+   if (E_bubble) {
+      ereg->getstat()->bubble(SAOK);
+      ereg->geticode()->bubble(INOP);
+      ereg->getifun()->bubble();
+      ereg->getvalC()->bubble();
+      ereg->getvalA()->bubble();
+      ereg->getvalB()->bubble();
+      ereg->getdstE()->bubble(RNONE);
+      ereg->getdstM()->bubble(RNONE);
+      ereg->getsrcA()->bubble(RNONE);
+      ereg->getsrcB()->bubble(RNONE);
+   }
+   else {
+      ereg->getstat()->normal();
+      ereg->geticode()->normal();
+      ereg->getifun()->normal();
+      ereg->getvalC()->normal();
+      ereg->getvalA()->normal();
+      ereg->getvalB()->normal();
+      ereg->getdstE()->normal();
+      ereg->getdstM()->normal();
+      ereg->getsrcA()->normal();
+      ereg->getsrcB()->normal();
+   }
 }
 
 /* setEInput
@@ -276,4 +293,19 @@ uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB, M *mreg, W *wreg, 
    
    else
       return d_rvalB;
+}
+
+bool DecodeStage::calculateControlSignals(E * ereg)
+{
+   uint64_t E_icode = ereg->geticode()->getOutput();
+   uint64_t E_dstM = ereg->getdstM()->getOutput();
+   return (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == srcA || E_dstM == srcB);
+}
+
+uint64_t DecodeStage::getd_srcA() {
+   return srcA;
+}
+
+uint64_t DecodeStage::getd_srcB() {
+   return srcB;
 }
