@@ -12,6 +12,7 @@
 #include "Stage.h"
 #include "FetchStage.h"
 #include "DecodeStage.h"
+#include "ExecuteStage.h"
 #include "Status.h"
 #include "Debug.h"
 #include "Tools.h"
@@ -36,6 +37,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    W * wreg = (W *) pregs[WREG];
 
    DecodeStage *dec = (DecodeStage *)stages[DSTAGE];
+   ExecuteStage *exe = (ExecuteStage *)stages[ESTAGE];
    uint64_t f_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
    uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
    F_stallVar = false;
@@ -96,7 +98,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
    
    calculateControlSignals(ereg->geticode()->getOutput(), ereg->getdstM()->getOutput(), 
-      dec->getd_srcA(), dec->getd_srcB());
+      dec->getd_srcA(), dec->getd_srcB(), exe->gete_Cnd());
    
    return false;
 }
@@ -116,24 +118,14 @@ void FetchStage::doClockHigh(PipeReg ** pregs)
       freg->getpredPC()->normal();
    else
       freg->getpredPC()->stall();
-   if (!D_stallVar) {
-      dreg->getstat()->normal();
-      dreg->geticode()->normal();
-      dreg->getifun()->normal();
-      dreg->getrA()->normal();
-      dreg->getrB()->normal();
-      dreg->getvalC()->normal();
-      dreg->getvalP()->normal();
-   }
-   else {
-      dreg->getstat()->stall();
-      dreg->geticode()->stall();
-      dreg->getifun()->stall();
-      dreg->getrA()->stall();
-      dreg->getrB()->stall();
-      dreg->getvalC()->stall();
-      dreg->getvalP()->stall();
-   }
+
+   if (D_bubbleVar)
+      bubbleD(dreg);
+   else if (!D_stallVar)
+      normalD(dreg);
+   else
+      stallD(dreg);
+
 }
 
 /* setDInput
@@ -318,7 +310,42 @@ bool FetchStage::D_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uin
    return (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB);
 }
 
-void FetchStage::calculateControlSignals(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB) {
+void FetchStage::calculateControlSignals(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB, uint64_t e_Cnd) {
    F_stallVar = F_stall(E_icode, E_dstM, d_srcA, d_srcB);
    D_stallVar = D_stall(E_icode, E_dstM, d_srcA, d_srcB);
+   D_bubbleVar = D_bubble(E_icode, e_Cnd);
+}
+
+bool FetchStage::D_bubble(uint64_t E_icode, uint64_t e_Cnd) {
+   D_bubbleVar = (E_icode == IJXX && !e_Cnd);
+}
+
+void FetchStage::normalD(D* dreg) {
+   dreg->getstat()->normal();
+   dreg->geticode()->normal();
+   dreg->getifun()->normal();
+   dreg->getrA()->normal();
+   dreg->getrB()->normal();
+   dreg->getvalC()->normal();
+   dreg->getvalP()->normal();
+}
+
+void FetchStage::bubbleD(D * dreg) {
+   dreg->getstat()->bubble(SAOK);
+   dreg->geticode()->bubble(INOP);
+   dreg->getifun()->bubble();
+   dreg->getrA()->bubble(RNONE);
+   dreg->getrB()->bubble(RNONE);
+   dreg->getvalC()->bubble();
+   dreg->getvalP()->bubble();
+}
+
+void FetchStage::stallD(D * dreg) {
+   dreg->getstat()->stall();
+   dreg->geticode()->stall();
+   dreg->getifun()->stall();
+   dreg->getrA()->stall();
+   dreg->getrB()->stall();
+   dreg->getvalC()->stall();
+   dreg->getvalP()->stall();
 }
