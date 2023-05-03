@@ -358,8 +358,7 @@ bool FetchStage::D_bubble(uint64_t E_icode, uint64_t e_Cnd, uint64_t E_dstM, uin
    uint64_t M_icode, uint64_t d_srcA, uint64_t d_srcB) 
 {
    return (E_icode == IJXX && !e_Cnd)
-   || !(E_icode == IRMMOVQ || E_icode == IPOPQ)
-   && (E_dstM == d_srcA || E_dstM == d_srcB)
+   || !((E_icode == IRMMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB))
    && (IRET == D_icode || IRET == E_icode || IRET == M_icode);
 }
 
