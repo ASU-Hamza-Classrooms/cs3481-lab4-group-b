@@ -113,6 +113,8 @@ void FetchStage::doClockHigh(PipeReg ** pregs)
 
    if (!F_stallVar)
       freg->getpredPC()->normal();
+   else
+      freg->getpredPC()->stall();
    if (!D_stallVar) {
       dreg->getstat()->normal();
       dreg->geticode()->normal();
@@ -121,6 +123,15 @@ void FetchStage::doClockHigh(PipeReg ** pregs)
       dreg->getrB()->normal();
       dreg->getvalC()->normal();
       dreg->getvalP()->normal();
+   }
+   else {
+      dreg->getstat()->stall();
+      dreg->geticode()->stall();
+      dreg->getifun()->stall();
+      dreg->getrA()->stall();
+      dreg->getrB()->stall();
+      dreg->getvalC()->stall();
+      dreg->getvalP()->stall();
    }
 }
 
