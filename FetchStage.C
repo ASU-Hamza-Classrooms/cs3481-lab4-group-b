@@ -94,8 +94,9 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
       valC = buildValC(f_pc, icode);
    }
 
-   // printf("===============================================\n");
-   // printf("valC: %x\n", valC);
+   // 
+   // comments here!!!!!!!!!!!!!!
+   //
 
    //getting the predicted PC and storing it in the temp variable
    tempPredPC = predictPC(icode, valC, valP);
@@ -106,7 +107,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //provide the input values for the D register
    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
    
-   calculateControlSignals(ereg->geticode()->getOutput(), ereg->getdstM()->getOutput(), 
+   calculateControlSignals(ereg, dreg, mreg, 
       dec->getd_srcA(), dec->getd_srcB(), exe->gete_Cnd());
    
    return false;
@@ -330,22 +331,36 @@ uint64_t FetchStage::f_stat(bool mem_error, uint64_t f_icode)
    return SAOK;
 }
 
-bool FetchStage::F_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB) {
-   return (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB);
+bool FetchStage::F_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t D_icode, uint64_t M_icode,
+   uint64_t d_srcA, uint64_t d_srcB) 
+{
+   return (E_icode == IMRMOVQ || E_icode == IPOPQ) 
+   && (E_dstM == d_srcA || E_dstM == d_srcB)
+   || (IRET == D_icode || IRET == E_icode || IRET == M_icode);
 }
 
 bool FetchStage::D_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB) {
    return (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB);
 }
 
-void FetchStage::calculateControlSignals(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB, uint64_t e_Cnd) {
-   F_stallVar = F_stall(E_icode, E_dstM, d_srcA, d_srcB);
+void FetchStage::calculateControlSignals(E * ereg, D * dreg, M * mreg, uint64_t d_srcA, uint64_t d_srcB, uint64_t e_Cnd) {
+   uint64_t E_icode = ereg->geticode()->getOutput();
+   uint64_t E_dstM = ereg->getdstM()->getOutput();
+   uint64_t D_icode = dreg->geticode()->getOutput();
+   uint64_t M_icode = mreg->geticode()->getOutput();
+   
+   F_stallVar = F_stall(E_icode, E_dstM, D_icode, M_icode, d_srcA, d_srcB);
    D_stallVar = D_stall(E_icode, E_dstM, d_srcA, d_srcB);
-   D_bubbleVar = D_bubble(E_icode, e_Cnd);
+   D_bubbleVar = D_bubble(E_icode, e_Cnd, E_dstM, D_icode, M_icode, d_srcA, d_srcB);
 }
 
-bool FetchStage::D_bubble(uint64_t E_icode, uint64_t e_Cnd) {
-   D_bubbleVar = (E_icode == IJXX && !e_Cnd);
+bool FetchStage::D_bubble(uint64_t E_icode, uint64_t e_Cnd, uint64_t E_dstM, uint64_t D_icode, 
+   uint64_t M_icode, uint64_t d_srcA, uint64_t d_srcB) 
+{
+   D_bubbleVar = (E_icode == IJXX && !e_Cnd)
+   || !(E_icode == IRMMOVQ || E_icode == IPOPQ)
+   && (E_dstM == d_srcA || E_dstM == d_srcB)
+   && (IRET == D_icode || IRET == E_icode || IRET == M_icode);
 }
 
 void FetchStage::normalD(D* dreg) {

@@ -21,10 +21,13 @@ class FetchStage: public Stage
       uint64_t buildValC(uint64_t f_pc, uint64_t f_icode);
       bool instr_valid(uint64_t f_icode);
       uint64_t f_stat(bool mem_error, uint64_t f_icode);
-      bool F_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB);
+      bool F_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t D_icode, uint64_t M_icode,
+         uint64_t d_srcA, uint64_t d_srcB);
       bool D_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB);
-      void calculateControlSignals(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB, uint64_t e_Cnd);
-      bool D_bubble(uint64_t E_icode, uint64_t e_Cnd);
+      void calculateControlSignals(E * ereg, D * dreg, M * mreg, uint64_t 
+         d_srcA, uint64_t d_srcB, uint64_t e_Cnd);
+      bool D_bubble(uint64_t E_icode, uint64_t e_Cnd, uint64_t E_dstM, uint64_t D_icode, 
+         uint64_t M_icode, uint64_t d_srcA, uint64_t d_srcB);
       void normalD(D * dreg);
       void bubbleD(D * dreg);
       void stallD(D * dreg);
