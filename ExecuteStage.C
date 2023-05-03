@@ -56,7 +56,7 @@ bool ExecuteStage::doClockLow(PipeReg **pregs, Stage **stages)
       CC(e_valE, alu_fun, alu_A, alu_B);
 
    // Sets e_Cnd
-   uint64_t e_Cnd = cond(ereg->geticode()->getOutput(), ereg->getifun()->getOutput());
+   e_Cnd = cond(ereg->geticode()->getOutput(), ereg->getifun()->getOutput());
 
    // Set new dstE to send to M register
    e_dstE = eDstE(ereg->geticode()->getOutput(), ereg->getdstE()->getOutput(), e_Cnd);
@@ -402,4 +402,8 @@ bool ExecuteStage::calculateControlSignals(Stage ** stages, uint64_t W_stat)
 
    // return (m_stat == SADR || m_stat == SINS || m_stat == SHLT) 
    // || (W_stat == SADR || W_stat == SINS || W_stat == SHLT);
+}
+
+u_int64_t ExecuteStage::gete_Cnd() {
+   return e_Cnd;
 }

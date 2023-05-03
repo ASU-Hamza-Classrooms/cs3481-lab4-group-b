@@ -7,6 +7,7 @@ class ExecuteStage: public Stage
       uint64_t e_dstE;
       uint64_t e_valE;
       bool M_bubble;
+      uint64_t e_Cnd;
    public:
       bool doClockLow(PipeReg ** pregs, Stage ** stages);
       void doClockHigh(PipeReg ** pregs);
@@ -21,4 +22,5 @@ class ExecuteStage: public Stage
       uint64_t get_evalE();
       uint64_t cond(uint64_t icode, uint64_t ifun);
       bool calculateControlSignals(Stage ** stages, uint64_t W_stat);
+      u_int64_t gete_Cnd();
 };
