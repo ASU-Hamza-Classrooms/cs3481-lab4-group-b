@@ -58,9 +58,10 @@ bool DecodeStage::doClockLow(PipeReg **pregs, Stage **stages)
    // Set inputs for the E register
    setEInput(ereg, dreg->getstat()->getOutput(), dreg->geticode()->getOutput(), dreg->getifun()->getOutput(),
              dreg->getvalC()->getOutput(), fwd_A, fwd_B, dstE, dstM, srcA, srcB);
-   return false;
-
+   
    E_bubble = calculateControlSignals(ereg);
+   
+   return false;
 }
 
 /* doClockHigh
