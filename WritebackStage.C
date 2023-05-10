@@ -9,7 +9,6 @@
 #include "Stage.h"
 #include "WritebackStage.h"
 #include "Status.h"
-#include "Debug.h"
 
 /*
  * doClockLow:
