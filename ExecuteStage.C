@@ -30,10 +30,8 @@ bool ExecuteStage::doClockLow(PipeReg **pregs, Stage **stages)
    M *mreg = (M *)pregs[MREG];
    W *wreg = (W *)pregs[WREG];
 
+   // set to false at first
    M_bubble = false;
-   // MemoryStage * mem = (MemoryStage *) stages[MSTAGE];
-   // uint64_t m_stat = mem->getm_stat();
-   // M_bubble = calculateControlSignals(m_stat, wreg->getstat()->getOutput());
 
    // Sets e_valE to the result of the ALU.  The value of e_valE is then stored in M_valE.
    // Get the value returned from aluFun
@@ -63,6 +61,7 @@ bool ExecuteStage::doClockLow(PipeReg **pregs, Stage **stages)
    setMInput(mreg, ereg->getstat()->getOutput(), ereg->geticode()->getOutput(), e_Cnd, e_valE,
              ereg->getvalA()->getOutput(), e_dstE, ereg->getdstM()->getOutput());
 
+   // decides if the M register needs to be bubbled
    M_bubble = calculateControlSignals(stages, wreg->getstat()->getOutput());
 
    return false;
@@ -78,7 +77,7 @@ void ExecuteStage::doClockHigh(PipeReg **pregs)
 {
    M *mreg = (M *)pregs[MREG];
 
-   // bubbleM
+   // bubble the M Register
    if (M_bubble)
    {
       mreg->getstat()->bubble(SAOK);
@@ -89,7 +88,7 @@ void ExecuteStage::doClockHigh(PipeReg **pregs)
       mreg->getdstE()->bubble(RNONE);
       mreg->getdstM()->bubble(RNONE);
    }
-   // normalM
+   // apply normal signals to the M register
    else
    {
       mreg->getstat()->normal();
@@ -133,8 +132,6 @@ void ExecuteStage::setMInput(M *mreg, uint64_t stat, uint64_t icode, uint64_t Cn
  * @param E_icode - icode from the ExecuteStage register
  * @param E_valA - valA from the ExecuteStage register
  * @param E_valC - valC from the ExecuteStage register
- *
- *
  */
 uint64_t ExecuteStage::aluA(uint64_t E_icode, uint64_t E_valA, uint64_t E_valC)
 {
@@ -155,8 +152,6 @@ uint64_t ExecuteStage::aluA(uint64_t E_icode, uint64_t E_valA, uint64_t E_valC)
  *
  * @param E_icode - icode from the ExecuteStage register
  * @param E_valB - valB from the ExecuteStage register
- *
- *
  */
 uint64_t ExecuteStage::aluB(uint64_t E_icode, uint64_t E_valB)
 {
@@ -174,7 +169,6 @@ uint64_t ExecuteStage::aluB(uint64_t E_icode, uint64_t E_valB)
  *
  * @param E_ifun - ifun from the ExecuteStage register
  * @param E_icode - icode from the ExecuteStage register
- *
  */
 uint64_t ExecuteStage::aluFun(uint64_t E_ifun, uint64_t E_icode)
 {
@@ -188,12 +182,16 @@ uint64_t ExecuteStage::aluFun(uint64_t E_ifun, uint64_t E_icode)
  * determines if condition codes need to be set
  *
  * @param E_icode - icode from the ExecuteStage register
- *
+ * @param stages - pointer to the different processor stages
+ * @param W_stat - stat variable from the W Register
  */
 bool ExecuteStage::set_cc(uint64_t E_icode, Stage * stages[MSTAGE], uint64_t W_stat)
 {
+   // creats a variable to point to the Memory Stage
    MemoryStage * mem = (MemoryStage *) stages[MSTAGE];
+   // gets m_stat from Memory Stage
    uint64_t m_stat = mem->getm_stat();
+
    return (E_icode == IOPQ) && (m_stat != SADR && m_stat != SINS && m_stat != SHLT) 
       && (W_stat != SADR && W_stat != SINS && W_stat != SHLT);
 }
@@ -231,10 +229,6 @@ void ExecuteStage::CC(uint64_t alu, uint64_t aluFun, uint64_t aluA, uint64_t alu
    // get the instance of the ConditionCodes (Singleton)
    ConditionCodes *cc = ConditionCodes::getInstance();
 
-   // printf("===============================\n");
-   // printf("ALU: %d ALU_FN: %d ALU_A: %d ALU_B: %d\n", alu,aluFun, aluA, aluB);
-   // printf("===============================\n");
-
    // error variable used for method calls
    bool error = false;
 
@@ -246,13 +240,11 @@ void ExecuteStage::CC(uint64_t alu, uint64_t aluFun, uint64_t aluA, uint64_t alu
    }
    else if (Tools::sign(alu) == 0)
    {
-      // printf("**********HERE GT***********\n");
       cc->setConditionCode(0, SF, error);
       cc->setConditionCode(0, ZF, error);
    }
    else if (Tools::sign(alu) == 1)
    {
-      // printf("**********HERE***********\n");
       cc->setConditionCode(1, SF, error);
       cc->setConditionCode(0, ZF, error);
    }
@@ -277,10 +269,6 @@ void ExecuteStage::CC(uint64_t alu, uint64_t aluFun, uint64_t aluA, uint64_t alu
       else
          cc->setConditionCode(0, OF, error);
    }
-
-   // printf("===============================\n");
-   // printf("SF: %d   ZF: %d OF: %d\n", cc->getConditionCode(SF, error), cc->getConditionCode(ZF, error), cc->getConditionCode(OF, error));
-   // printf("===============================\n");
 }
 
 /*
@@ -377,12 +365,22 @@ uint64_t ExecuteStage::get_evalE()
    return e_valE;
 }
 
+/*
+ * calculateControlSignals
+ * 
+ * calculates the control signals needed to decide
+ * if the E register needs to be bubbled
+ *
+ * returns e_valE
+ */
 bool ExecuteStage::calculateControlSignals(Stage ** stages, uint64_t W_stat)
 {
-   // printf("===================m_stat: %d\n", m_stat);
+   // gets a pointer to the Memory Stage
    MemoryStage * mem = (MemoryStage *) stages[MSTAGE];
+   // gets m_stat from the Memory Stage
    uint64_t m_stat = mem->getm_stat();
    
+   // returns true if m_stat is an error code
    switch (m_stat){
       case SADR:
       case SINS:
@@ -390,19 +388,22 @@ bool ExecuteStage::calculateControlSignals(Stage ** stages, uint64_t W_stat)
          return true;
    }
 
+   // returns true if W_stat is an error code
    switch (W_stat) {
       case SADR:
       case SINS:
       case SHLT:
       return true;
    }
-
+   // return false if no error codes
    return false;
-
-   // return (m_stat == SADR || m_stat == SINS || m_stat == SHLT) 
-   // || (W_stat == SADR || W_stat == SINS || W_stat == SHLT);
 }
 
+/*
+ * gete_Cnd
+ *
+ * returns e_Cnd
+ */
 u_int64_t ExecuteStage::gete_Cnd() {
    return e_Cnd;
 }

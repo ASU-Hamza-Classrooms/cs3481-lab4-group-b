@@ -31,7 +31,9 @@ bool DecodeStage::doClockLow(PipeReg **pregs, Stage **stages)
    M *mreg = (M *)pregs[MREG];
    W *wreg = (W *)pregs[WREG];
 
+   // variable that points to the register file
    RegisterFile *regFile = RegisterFile::getInstance();
+   // sets E bubble to false
    E_bubble = false;
 
    // setting icode, srcA, srcB
@@ -58,6 +60,7 @@ bool DecodeStage::doClockLow(PipeReg **pregs, Stage **stages)
    setEInput(ereg, dreg->getstat()->getOutput(), dreg->geticode()->getOutput(), dreg->getifun()->getOutput(),
              dreg->getvalC()->getOutput(), fwd_A, fwd_B, dstE, dstM, srcA, srcB);
    
+   // sets the E_bubble variable
    E_bubble = calculateControlSignals(ereg, stages);
    
    return false;
@@ -73,6 +76,7 @@ void DecodeStage::doClockHigh(PipeReg **pregs)
 {
    E *ereg = (E *)pregs[EREG];
 
+   // if E_bubble is true, bubble the E register
    if (E_bubble) {
       ereg->getstat()->bubble(SAOK);
       ereg->geticode()->bubble(INOP);
@@ -85,6 +89,7 @@ void DecodeStage::doClockHigh(PipeReg **pregs)
       ereg->getsrcA()->bubble(RNONE);
       ereg->getsrcB()->bubble(RNONE);
    }
+   // else apply normal signals
    else {
       ereg->getstat()->normal();
       ereg->geticode()->normal();
@@ -131,6 +136,7 @@ void DecodeStage::setEInput(E *ereg, uint64_t stat, uint64_t icode,
    ereg->getsrcA()->setInput(srcA);
    ereg->getsrcB()->setInput(srcB);
 }
+
 /* getsrcA
  * determines srcA based on icode
  *
@@ -259,8 +265,6 @@ uint64_t DecodeStage::selFwdA(uint64_t d_srcA, uint64_t d_rvalA, D *dreg, M *mre
  * @param mreg - MemoryStage register
  * @param wreg - WritebackStage register
  * @param stages - array of Y86 stages
- *
- *
  */
 uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB, M *mreg, W *wreg, Stage **stages)
 {
@@ -295,12 +299,24 @@ uint64_t DecodeStage::fwdB(uint64_t d_srcB, uint64_t d_rvalB, M *mreg, W *wreg, 
       return d_rvalB;
 }
 
+/* calculateControlSignals
+ * 
+ * calculates the control signals needed 
+ * to decide whtner or not to bubble the E register.
+ *
+ * @param ereg - pointer to the E register
+ * @param stages - pointer to the different stages
+ */
 bool DecodeStage::calculateControlSignals(E * ereg, Stage **stages)
 {
+   // gets E_icode
    uint64_t E_icode = ereg->geticode()->getOutput();
+   // gets E_dstM
    uint64_t E_dstM = ereg->getdstM()->getOutput();
 
+   // gets access to the Execute Stage
    ExecuteStage * exec = (ExecuteStage *)stages[ESTAGE];
+   // gets the condition from the Execute Stage
    uint64_t e_Cnd = exec->gete_Cnd();
 
    return (E_icode == IJXX && !e_Cnd) 
@@ -308,10 +324,20 @@ bool DecodeStage::calculateControlSignals(E * ereg, Stage **stages)
       && (E_dstM == srcA || E_dstM == srcB));
 }
 
+/* getd_srcA
+ * returns d_srcA 
+ *
+ * @return srcA
+ */
 uint64_t DecodeStage::getd_srcA() {
    return srcA;
 }
 
+/* getd_srcB
+ * returns d_srcB
+ *
+ * @return srcB
+ */
 uint64_t DecodeStage::getd_srcB() {
    return srcB;
 }

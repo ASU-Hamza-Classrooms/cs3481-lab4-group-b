@@ -38,7 +38,8 @@ bool MemoryStage::doClockLow(PipeReg **pregs, Stage **stages)
    // memory error variable.
    bool mem_error = false;
 
-   m_stat = mreg->getstat()->getOutput(); // M_stat
+   // get m_stat from the M register
+   m_stat = mreg->getstat()->getOutput();
 
    // if mem_read is true, this statement reads from memory
    if (mem_read(mreg))
@@ -113,6 +114,7 @@ void MemoryStage::setWInput(W *wreg, uint64_t stat, uint64_t icode, uint64_t val
  */
 uint64_t MemoryStage::mem_addr(M *mreg)
 {
+   // gets the icode from the M register
    uint64_t M_icode = mreg->geticode()->getOutput();
 
    if (M_icode == IRMMOVQ || M_icode == IPUSHQ || M_icode == ICALL || M_icode == IMRMOVQ)
@@ -130,6 +132,7 @@ uint64_t MemoryStage::mem_addr(M *mreg)
  */
 bool MemoryStage::mem_read(M *mreg)
 {
+   // gets the icode from the M register
    uint64_t M_icode = mreg->geticode()->getOutput();
 
    return M_icode == IMRMOVQ || M_icode == IPOPQ || M_icode == IRET;
@@ -142,6 +145,7 @@ bool MemoryStage::mem_read(M *mreg)
  */
 bool MemoryStage::mem_write(M *mreg)
 {
+   // gets the icode from the M register
    uint64_t M_icode = mreg->geticode()->getOutput();
 
    return M_icode == IRMMOVQ || M_icode == IPUSHQ || M_icode == ICALL;

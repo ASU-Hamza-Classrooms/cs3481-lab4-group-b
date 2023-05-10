@@ -362,7 +362,9 @@ bool FetchStage::D_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uin
 }
 
 /* calculateControlSignals
- * returns true if the D register needs to be stalled. 
+
+ * calculates the control signals for stalling,
+ * bubbling, or normal. 
  *
  * @param: E_icode - icode from the E register.
  * @param: E_dstM - dstM from the E register.
@@ -375,11 +377,25 @@ void FetchStage::calculateControlSignals(E * ereg, D * dreg, M * mreg, uint64_t 
    uint64_t D_icode = dreg->geticode()->getOutput();
    uint64_t M_icode = mreg->geticode()->getOutput();
    
+   // set the F_stall variable.
    F_stallVar = F_stall(E_icode, E_dstM, D_icode, M_icode, d_srcA, d_srcB);
+   // set the D_stall variable.
    D_stallVar = D_stall(E_icode, E_dstM, d_srcA, d_srcB);
+   // set the D_bubble variable.
    D_bubbleVar = D_bubble(E_icode, e_Cnd, E_dstM, D_icode, M_icode, d_srcA, d_srcB);
 }
 
+/* D_bubble
+ * returns true if the D register needs to be bubbled. 
+ *
+ * @param: E_icode - icode from the E register.
+ * @param: e_Cnd - Condition calculated from the Execute stage.
+ * @param: E_dstM - dstM from the E register.
+ * @param: D_icode - icode from the D register.
+ * @param: M_icode - icode from the M register.
+ * @param: d_srcA - src_A from the Decode stage.
+ * @param: d_srcB - src_B from the Decode stage.
+ */
 bool FetchStage::D_bubble(uint64_t E_icode, uint64_t e_Cnd, uint64_t E_dstM, uint64_t D_icode, 
    uint64_t M_icode, uint64_t d_srcA, uint64_t d_srcB) 
 {
@@ -388,6 +404,11 @@ bool FetchStage::D_bubble(uint64_t E_icode, uint64_t e_Cnd, uint64_t E_dstM, uin
    && (IRET == D_icode || IRET == E_icode || IRET == M_icode);
 }
 
+/* normalD
+ * sets the D register fields to normal. 
+ *
+ * @param: dreg - pointer to the D register.
+ */
 void FetchStage::normalD(D* dreg) {
    dreg->getstat()->normal();
    dreg->geticode()->normal();
@@ -398,6 +419,11 @@ void FetchStage::normalD(D* dreg) {
    dreg->getvalP()->normal();
 }
 
+/* bubbleD
+ * sets the D register fields to bubble. 
+ *
+ * @param: dreg - pointer to the D register.
+ */
 void FetchStage::bubbleD(D * dreg) {
    dreg->getstat()->bubble(SAOK);
    dreg->geticode()->bubble(INOP);
@@ -408,6 +434,11 @@ void FetchStage::bubbleD(D * dreg) {
    dreg->getvalP()->bubble();
 }
 
+/* stallD
+ * sets the D register fields to stall. 
+ *
+ * @param: dreg - pointer to the D register.
+ */
 void FetchStage::stallD(D * dreg) {
    dreg->getstat()->stall();
    dreg->geticode()->stall();
