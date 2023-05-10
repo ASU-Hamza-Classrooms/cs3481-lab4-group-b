@@ -49,8 +49,8 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //rA, rB, and valC to be set.
    //The lab assignment describes what methods need to be
    //written.
+   
    //sets f_pc
-
    f_pc = selectPC(freg, mreg, wreg);
    bool mem_error = false;
 
@@ -72,12 +72,13 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    else 
       ifun = Tools::getBits(instByte, 0, 3);
 
+   // Call f_stat to make sure icode is valid.
    stat = f_stat(mem_error, icode);
 
    //setting valP from PCIncrement
    valP = PCincrement(f_pc, needRegIds(icode), needValC(icode));
 
-   //getting the predicted PC and storing it in the temp variable
+   //getting the predicted PC and storing it in the temp variable.
    uint64_t tempPredPC = predictPC(icode, valC, valP);
 
    //The value passed to setInput below will need to be changed
@@ -107,6 +108,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //provide the input values for the D register
    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
    
+   // 
    calculateControlSignals(ereg, dreg, mreg, 
       dec->getd_srcA(), dec->getd_srcB(), exe->gete_Cnd());
    
@@ -268,6 +270,7 @@ uint64_t FetchStage::buildValC(uint64_t f_pc, uint64_t f_icode)
 {
    // Get the instance of Memroy(Singleton) and assign to mem_instance
    Memory * mem_instance = Memory::getInstance();
+
    // Array to store the bytes of valC from the instruction
    uint8_t byte[8];
 
@@ -275,10 +278,8 @@ uint64_t FetchStage::buildValC(uint64_t f_pc, uint64_t f_icode)
    int end;
    int i;
 
-   // printf("===============================================\n");
-   // printf("f_icode: %x\n", f_icode);
-
-   // if icode is JXX or CALL
+   // The following statements alter the start, end, and i variables
+   // depending on the instruction length.
    if (f_icode == IJXX || f_icode == ICALL) {
       i = 1;
       start = 1;
@@ -331,6 +332,16 @@ uint64_t FetchStage::f_stat(bool mem_error, uint64_t f_icode)
    return SAOK;
 }
 
+/* F_stall
+ * returns true if the F register needs to be stalled. 
+ *
+ * @param: E_icode - icode from the E register.
+ * @param: E_dstM - dstM from the E register.
+ * @param: D_icode - icode from the D register.
+ * @param: M_icode - icode from the M register.
+ * @param: d_srcA - src_A from the Decode stage.
+ * @param: d_srcB - src_B from the Decode stage.
+ */
 bool FetchStage::F_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t D_icode, uint64_t M_icode,
    uint64_t d_srcA, uint64_t d_srcB) 
 {
@@ -339,10 +350,26 @@ bool FetchStage::F_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t D_icode, ui
    || (IRET == D_icode || IRET == E_icode || IRET == M_icode);
 }
 
+/* D_stall
+ * returns true if the D register needs to be stalled. 
+ *
+ * @param: E_icode - icode from the E register.
+ * @param: E_dstM - dstM from the E register.
+ * @param: d_srcA - src_A from the Decode stage.
+ * @param: d_srcB - src_B from the Decode stage.
+ */
 bool FetchStage::D_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB) {
    return (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB);
 }
 
+/* calculateControlSignals
+ * returns true if the D register needs to be stalled. 
+ *
+ * @param: E_icode - icode from the E register.
+ * @param: E_dstM - dstM from the E register.
+ * @param: d_srcA - src_A from the Decode stage.
+ * @param: d_srcB - src_B from the Decode stage.
+ */
 void FetchStage::calculateControlSignals(E * ereg, D * dreg, M * mreg, uint64_t d_srcA, uint64_t d_srcB, uint64_t e_Cnd) {
    uint64_t E_icode = ereg->geticode()->getOutput();
    uint64_t E_dstM = ereg->getdstM()->getOutput();
