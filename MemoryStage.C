@@ -1,8 +1,8 @@
 #include <string>
 #include <cstdint>
+#include "Instructions.h"
 #include "RegisterFile.h"
 #include "PipeRegField.h"
-#include "Instructions.h"
 #include "Memory.h"
 #include "PipeReg.h"
 #include "E.h"
@@ -11,7 +11,6 @@
 #include "Stage.h"
 #include "MemoryStage.h"
 #include "Status.h"
-#include "Debug.h"
 
 /*
  * doClockLow:

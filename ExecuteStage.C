@@ -12,7 +12,6 @@
 #include "ExecuteStage.h"
 #include "MemoryStage.h"
 #include "Status.h"
-#include "Debug.h"
 #include "ConditionCodes.h"
 #include "Tools.h"
 
@@ -51,7 +50,6 @@ bool ExecuteStage::doClockLow(PipeReg **pregs, Stage **stages)
    e_valE = ALU(alu_fun, alu_A, alu_B);
 
    // Sets the Condition Codes (CC)
-   MemoryStage * mem = (MemoryStage *) stages[MSTAGE];
    if (set_cc(ereg->geticode()->getOutput(), stages, wreg->getstat()->getOutput()))
       CC(e_valE, alu_fun, alu_A, alu_B);
 
@@ -307,6 +305,7 @@ uint64_t ExecuteStage::ALU(uint64_t aluFun, uint64_t aluA, uint64_t aluB)
       return aluA & aluB;
    if (aluFun == XORQ)
       return aluA ^ aluB;
+   return 0;
 }
 
 /*

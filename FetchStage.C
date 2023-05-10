@@ -14,7 +14,6 @@
 #include "DecodeStage.h"
 #include "ExecuteStage.h"
 #include "Status.h"
-#include "Debug.h"
 #include "Tools.h"
 #include "Memory.h"
 
@@ -334,8 +333,8 @@ uint64_t FetchStage::f_stat(bool mem_error, uint64_t f_icode)
 bool FetchStage::F_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t D_icode, uint64_t M_icode,
    uint64_t d_srcA, uint64_t d_srcB) 
 {
-   return (E_icode == IMRMOVQ || E_icode == IPOPQ) 
-   && (E_dstM == d_srcA || E_dstM == d_srcB)
+   return ((E_icode == IMRMOVQ || E_icode == IPOPQ) 
+   && (E_dstM == d_srcA || E_dstM == d_srcB))
    || (IRET == D_icode || IRET == E_icode || IRET == M_icode);
 }
 

@@ -14,7 +14,6 @@
 #include "ExecuteStage.h"
 #include "MemoryStage.h"
 #include "Status.h"
-#include "Debug.h"
 
 /* doClockLow
  *
@@ -305,8 +304,8 @@ bool DecodeStage::calculateControlSignals(E * ereg, Stage **stages)
    uint64_t e_Cnd = exec->gete_Cnd();
 
    return (E_icode == IJXX && !e_Cnd) 
-      || (E_icode == IMRMOVQ || E_icode == IPOPQ) 
-      && (E_dstM == srcA || E_dstM == srcB);
+      || ((E_icode == IMRMOVQ || E_icode == IPOPQ) 
+      && (E_dstM == srcA || E_dstM == srcB));
 }
 
 uint64_t DecodeStage::getd_srcA() {
